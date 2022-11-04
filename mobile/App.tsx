@@ -1,21 +1,25 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { NativeBaseProvider, Center, Text } from "native-base";
+import { useFonts, Roboto_400Regular, Roboto_500Medium, Roboto_700Bold } from '@expo-google-fonts/roboto'
+
+import { THEME } from './src/style/theme';
 
 export default function App() {
+  const [fontsLoaded] = useFonts({Roboto_400Regular, Roboto_500Medium, Roboto_700Bold})
+
+  if(fontsLoaded){
+    return ()
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    <NativeBaseProvider theme={THEME}>
+      <Center flex={1} bgColor="gray.900" >
+      
+      <Text color="white" fontSize={24}>Open up App.js to start working on your aprp!</Text>
       <StatusBar style="auto" />
-    </View>
+    
+      </Center>
+    </NativeBaseProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
