@@ -8,6 +8,7 @@ import { THEME } from './src/style/theme';
 import { Loading } from './src/components/Loading';
 import SingIn from './src/screens/SingIn';
 import { AuthContext, AuthContextProvider } from './src/contexts/AuthContext';
+import { New } from './src/screens/New';
 
 export default function App() {
   const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_500Medium, Roboto_700Bold })
@@ -21,7 +22,7 @@ export default function App() {
           translucent
         />
         {
-          fontsLoaded ? <SingIn /> : <Loading />
+          fontsLoaded ? <New /> : <Loading />
         }
       </AuthContextProvider>
     </NativeBaseProvider>
