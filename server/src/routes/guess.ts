@@ -1,38 +1,41 @@
-import { FastifyInstance } from 'fastify';
-import { z } from 'zod';
-import { prisma } from '../lib/prisma'
-import { authenticate } from '../plugins/authenticate';
+import { FastifyInstance } from "fastify"
+import { z } from "zod"
+import { prisma } from "../lib/prisma"
+import { authenticate } from "../plugins/authenticate"
 
-export async function guessRoutes(fastify: FastifyInstance) {
+
+export async function guessRoutes(fastify: FastifyInstance){
   fastify.get('/guesses/count', async () => {
     const count = await prisma.guess.count()
 
     return { count }
   })
 
-  fastify.post('/pools/:poolId/games/:gameId/guesses', { onRequest: [ authenticate ] }, async (request, reply) => {
+  fastify.post('/pools/:poolId/games/:gameId/guess', {
+    onRequest: [authenticate]
+  }, async (request, reply) => {
     const createGuessParams = z.object({
       poolId: z.string(),
-      gameId: z.string(),
+      gameId: z.string()
     })
     const createGuessBody = z.object({
       firstTeamPoints: z.number(),
-      secondTeamPoints: z.number(),
+      secondTeamPoints: z.number()
     })
 
-    const { firstTeamPoints, secondTeamPoints } = createGuessBody.parse(request.body)
     const { poolId, gameId } = createGuessParams.parse(request.params)
+    const { firstTeamPoints, secondTeamPoints } = createGuessBody.parse(request.body)
 
     const participant = await prisma.participant.findUnique({
       where: {
         userId_poolId: {
-          userId: request.user.sub,
-          poolId
+          poolId,
+          userId: request.user.sub
         }
-      }
+      } 
     })
 
-    if (!participant) {
+    if(!participant) {
       return reply.status(400).send({
         message: "You're not allowed to create a guess inside this pool."
       })
@@ -47,9 +50,9 @@ export async function guessRoutes(fastify: FastifyInstance) {
       }
     })
 
-    if (guess) {
+    if(guess){
       return reply.status(400).send({
-        message: 'You already sent a guess to this game on this pool.'
+        message: "You're already sent a guess to this game in this pool."
       })
     }
 
@@ -59,15 +62,15 @@ export async function guessRoutes(fastify: FastifyInstance) {
       }
     })
 
-    if (!game) {
-      return reply.status(404).send({
-        message: 'Game not found.'
+    if(!game) {
+      return reply.status(400).send({
+        message:"game not found."
       })
     }
 
-    if (game.date < new Date()) {
+    if(game.date < new Date()) {
       return reply.status(400).send({
-        message: 'You cannot send guesses after the game is over.'
+        message: "You cannot send guesses after the game date."
       })
     }
 
@@ -81,5 +84,6 @@ export async function guessRoutes(fastify: FastifyInstance) {
     })
 
     return reply.status(201).send()
+
   })
 }
