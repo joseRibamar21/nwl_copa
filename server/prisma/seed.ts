@@ -15,7 +15,7 @@ async function main() {
         data:{
             title: 'Example Pool',
             code: 'BOL123',
-            userId: user.id,
+            ownerId: user.id,
 
             participants:{
                 create: {
