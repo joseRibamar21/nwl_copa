@@ -8,6 +8,7 @@ import { THEME } from './src/style/theme';
 import { Loading } from './src/components/Loading';
 import { AuthContextProvider } from './src/contexts/AuthContext';
 import SingIn from './src/screens/SingIn';
+import { Routes } from './src/routes';
 
 
 export default function App() {
@@ -22,7 +23,7 @@ export default function App() {
           translucent
         />
         {
-          fontsLoaded ? <SingIn /> : <Loading />
+          fontsLoaded ? <Routes /> : <Loading />
         }
       </AuthContextProvider>
     </NativeBaseProvider>

@@ -10,7 +10,7 @@ export function ButtonIcon({ icon: Icon, ...rest }: Props) {
   const { colors, sizes } = useTheme();
 
   return (
-    <TouchableOpacity {...rest}>
+    <TouchableOpacity {...rest} >
       <Icon color={colors.gray[300]} size={sizes[6]} />
     </TouchableOpacity>
   );

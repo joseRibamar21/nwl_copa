@@ -26,6 +26,9 @@ async function bootstrap() {
   fastify.register(guessRoutes)
   fastify.register(authRoutes)
   fastify.register(gameRoutes)
+  fastify.get('/',()=>{
+    return "Olaaa"
+  })
 
   await fastify.listen({ port: 3333, host: '0.0.0.0' })
 }
