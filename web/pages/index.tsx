@@ -1,4 +1,5 @@
 import Image from "next/image";
+import ElevatedButton from "../components/ElevatedButton";
 
 export default function Home() {
   return (
@@ -6,9 +7,11 @@ export default function Home() {
       <Image src='/ball_bg.jpg' alt="Background" width={906} height={512} className={"w-[100%] h-[100vh] object-cover absolute"} />
       <div className="relative flex h-[70vh] w-[100%] max-w-[600px] rounded-2xl bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-60  bg-gray-900 shadow-2xl mx-10">
         <form action="" className="flex flex-col w-[100%] justify-center items-center">
-          <input type="text" placeholder="Email" className="h-8 rounded-sm mx-10 text-black"  />
-          <input type="password" placeholder="Senha" className="h-8 rounded-sm mx-10 text-black "/>
-          <button>Login</button>
+          <input type="text" placeholder="Email" className="h-8 rounded-sm mx-10 text-black" />
+          <input type="password" placeholder="Senha" className="h-8 rounded-sm mx-10 text-black " />
+          <div className="w-[100%] px-9 pt-9">
+            <ElevatedButton >Login</ElevatedButton>
+          </div>
         </form>
       </div>
     </div>
