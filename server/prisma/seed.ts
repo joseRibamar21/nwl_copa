@@ -8,6 +8,7 @@ async function main() {
             name: 'Jose Ribamar',
             email: "jose@teste.com",
             avatarUrl: "https://github.com/joseRibamar21.png",
+            password: "123456"
         }
     })
 

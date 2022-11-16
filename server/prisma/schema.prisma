@@ -8,9 +8,9 @@ generator erd {
 }
 
 datasource db {
-  provider             = "mysql"
-  url                  = env("DATABASE_URL")
-  referentialIntegrity = "prisma"
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Pool {
@@ -18,18 +18,19 @@ model Pool {
   title        String
   code         String        @unique
   createdAt    DateTime      @default(now())
+  open         Boolean       @default(false)
   ownerId      String?
-  participants Participant[]
   owner        User?         @relation(fields: [ownerId], references: [id])
+  participants Participant[]
 }
 
 model Participant {
   id      String  @id @default(cuid())
   userId  String
   poolId  String
-  guesses Guess[]
   user    User    @relation(fields: [userId], references: [id])
   pool    Pool    @relation(fields: [poolId], references: [id])
+  guesses Guess[]
 
   @@unique([userId, poolId])
 }
@@ -40,9 +41,10 @@ model User {
   email            String        @unique
   googleId         String?       @unique
   avatarUrl        String?
+  password         String?
   createdAt        DateTime      @default(now())
-  participantingAt Participant[]
   ownPools         Pool[]
+  participantingAt Participant[]
 }
 
 model Game {
