@@ -2,7 +2,9 @@ export type Pool = {
   id: string
   code: string
   title: string
-  _count: number
+  _count: {
+    participants: number
+  }
   owner: {
     id: string
     name: string
@@ -13,6 +15,6 @@ export type Pool = {
       name: string
       avatarUrl: string
     }
-  }
+  }[]
 
 }

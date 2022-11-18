@@ -20,7 +20,7 @@ export default function Home() {
   async function handleClickLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      singIn(dataForm.email,dataForm.password)
+      await singIn(dataForm.email,dataForm.password)
       router.push('/home')
     } catch (e) {
       console.log(e) 
