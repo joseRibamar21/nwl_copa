@@ -117,11 +117,11 @@ async function auth(request: FastifyRequest, reply: FastifyReply) {
         })
 
         if(!user){
-            return {message:"Usuário não encontrado!"}
+            return reply.status(404).send({message:"Usuário não encontrado!"})
         }
         
         if(!await comparePassword(userInfo.password,user.password!)){
-            return {message:"Senha incorreta!"}
+            return reply.status(422).send({message:"Senha incorreta!"})
         }
 
         const token = await reply.jwtSign({
