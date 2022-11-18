@@ -2,9 +2,11 @@ import Head from "next/head";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
 import ElevatedButton from "../components/ElevatedButton";
-import { api } from "../services/api";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Home() {
+
+  const { singIn } = useAuth()
   const [dataForm, setDataForm] = useState({
     email: "",
     password: ""
@@ -14,22 +16,13 @@ export default function Home() {
 
 
   async function handleClickLogin(event: FormEvent<HTMLFormElement>) {
-    console.log(dataForm)
     event.preventDefault();
 
-    
     try {
-      let response = await api.post("login", {
-      email: dataForm.email,
-      password: dataForm.password
-    })
-    localStorage.setItem('token', response.data.token)
-    
+      singIn(dataForm.email,dataForm.password)
     } catch (e) {
-      console.log(e)
-      
+      console.log(e) 
     }
-
   }
 
   return (

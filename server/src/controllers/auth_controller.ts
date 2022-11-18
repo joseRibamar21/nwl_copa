@@ -133,7 +133,7 @@ async function auth(request: FastifyRequest, reply: FastifyReply) {
         })
         
     
-        return { token }
+        return { token, user }
 
     }catch(error){
         console.log(error)
