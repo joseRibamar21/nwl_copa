@@ -17,7 +17,7 @@ const ElevatedButton = ({ children, handleClick, disable = false, theme = "PRYMA
     return (
         <button {...props} className={`
         ${disable ? "bg-gray-400 cursor-default  shadow  " :  `${bg} hover:brightness-95 active:brightness-90`} 
-        flex flex-row justify-center items-center gap-5 rounded-xl px-3 py-1 w-[100%] text-textLight shadow-xl h-10`
+        flex flex-row font-semibold justify-center items-center gap-5 rounded-xl px-3 py-1 w-[100%] text-textLight shadow-xl h-10`
         }>
             {children}
         </button>
