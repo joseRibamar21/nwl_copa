@@ -1,11 +1,13 @@
 import Head from "next/head";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { FormEvent, useState } from "react";
 import ElevatedButton from "../components/ElevatedButton";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Home() {
 
+  const router = useRouter()
   const { singIn } = useAuth()
   const [dataForm, setDataForm] = useState({
     email: "",
@@ -17,9 +19,9 @@ export default function Home() {
 
   async function handleClickLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     try {
       singIn(dataForm.email,dataForm.password)
+      router.push('/home')
     } catch (e) {
       console.log(e) 
     }
