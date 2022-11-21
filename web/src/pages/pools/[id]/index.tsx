@@ -79,15 +79,24 @@ export default function OnePool() {
           <h1>Jogos</h1>
           {games.map(e => {
             return <div key={e.id}>
-              <div className="flex flex-row gap-3">
+              <div className="flex flex-row gap-3 p-3">
                 <h4>{e.firstTeam}</h4>
                 <span>VS</span>
                 <h4>{e.secondTeam}</h4>
               </div>
-              {e.guesses.map(g =>{
-                return <div>
-                  {g.firstTeamPoints}
-                  {g.participant.user.name}
+              {e.guesses.map((g,i) => {
+                return <div key={i} className="flex flex-row gap-5 items-center w-[100] rounded-md bg-gray-900 p-3">
+                  <img src={g.participant.user.avatarUrl} alt={g.participant.user.avatarUrl} width={60} height={60} className="rounded-full" />
+                  <span>{g.participant.user.name}</span>
+                  <div className=" flex  flex-row gap-3">
+                    <span>
+                      {e.firstTeam} {g.firstTeamPoints}
+                    </span>
+                    <span> X </span>
+                    <span>
+                      {g.secondTeamPoints} {e.secondTeam}
+                    </span>
+                  </div>
                 </div>
               })}
             </div>
