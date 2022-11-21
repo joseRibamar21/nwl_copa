@@ -13,7 +13,6 @@ export default function Home() {
   const [pools, setPools] = useState([])
 
   async function loadPools() {
-    console.log('Chamadooooooooooooooo')
     axios.all([
       await api.get('pools/me'),
       await api.get('pools')

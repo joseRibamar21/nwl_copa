@@ -37,7 +37,8 @@ async function mePools(request: FastifyRequest, reply: FastifyReply) {
                     name: true,
                 }
             },
-        }
+        },
+        take: 10
     })
     return { pools }
 }
@@ -64,7 +65,7 @@ async function openPools(request: FastifyRequest, reply: FastifyReply) {
                         select: {
                             avatarUrl: true
                         }
-                    }
+                    },
                 },
                 take: 4
             },
@@ -77,8 +78,6 @@ async function openPools(request: FastifyRequest, reply: FastifyReply) {
         },
         take: 10
     })
-
-
 
     return { pools }
 }
@@ -109,7 +108,7 @@ async function onePool(request: FastifyRequest, reply: FastifyReply) {
                             name: true,
                             avatarUrl: true
                         }
-                    }
+                    },
                 },
             },
             owner: {
@@ -128,9 +127,10 @@ async function onePool(request: FastifyRequest, reply: FastifyReply) {
 async function createPool(request: FastifyRequest, reply: FastifyReply) {
     const createPoolBody = z.object({
         title: z.string(),
+        urlImage: z.string(),
         open: z.boolean()
     })
-    const { title, open } = createPoolBody.parse(request.body)
+    const { title, urlImage ,open } = createPoolBody.parse(request.body)
 
     const generateCode = new ShortUniqueId({ length: 6 })
     const code = String(generateCode()).toUpperCase()
@@ -142,6 +142,7 @@ async function createPool(request: FastifyRequest, reply: FastifyReply) {
             data: {
                 title,
                 code,
+                urlImage: urlImage,
                 ownerId: request.user.sub,
                 open,
                 participants: {

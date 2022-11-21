@@ -2,6 +2,7 @@ export type Pool = {
   id: string
   code: string
   title: string
+  urlImage: string
   _count: {
     participants: number
   }

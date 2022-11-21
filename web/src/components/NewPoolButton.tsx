@@ -8,10 +8,14 @@ import Input from './Input';
 
 export default function NewPoolButton() {
   const [title, setTitle] = useState<string>('')
+  const [urlImage, setUrlImage] = useState<string>('')
   const [check, setCheck] = useState<boolean>(false)
 
   function onChange(e: React.FormEvent<HTMLInputElement>) {
     setTitle(e.currentTarget.value)
+  };
+  function onChangeUrlImage(e: React.FormEvent<HTMLInputElement>) {
+    setUrlImage(e.currentTarget.value)
   };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -19,6 +23,7 @@ export default function NewPoolButton() {
     try {
       await api.post('pools', {
         title,
+        urlImage,
         open: check
       })
       console.log("Cadastrouu")
@@ -49,15 +54,21 @@ export default function NewPoolButton() {
               required
               onChange={onChange}
               className='w-[100%]' />
-            <div className='flex flex-row' onClick={() => {
 
-            }}>
+            <Input
+              type='url'
+              placeholder='Url para imagem'
+              value={urlImage}
+              required
+              onChange={onChangeUrlImage}
+              className='w-[100%]' />
+            <div className='flex flex-row'>
               <div onClick={() => { setCheck(!check) }}>
                 <CheckBox title='Sala Privada?' />
               </div>
             </div>
 
-            <ElevatedButton onClick={e=>handleSubmit}>
+            <ElevatedButton onClick={e => handleSubmit}>
               Confirmar
             </ElevatedButton>
           </form>

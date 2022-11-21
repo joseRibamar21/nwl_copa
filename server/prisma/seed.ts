@@ -12,6 +12,15 @@ async function main() {
         }
     })
 
+    await prisma.user.create({
+        data: {
+            name: 'Senhor Gato  ',
+            email: "teste@teste.com",
+            avatarUrl: "https://i.pinimg.com/736x/d5/c8/eb/d5c8ebdfa1eb3ec56d3c284577f3a1c6.jpg",
+            password: "123456"
+        }
+    })
+
     const pool = await prisma .pool.create({
         data:{
             title: 'Example Pool',
@@ -26,7 +35,7 @@ async function main() {
         }
     })
 
-    await prisma.game.create({
+   /*  await prisma.game.create({
         data:{
             date: '2022-11-07T20:17:31.989Z',
             firstTeamCountryCode: 'DE',
@@ -55,7 +64,7 @@ async function main() {
                 }
             }
         }
-    })
+    }) */
 }
 
 main()
