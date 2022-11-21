@@ -125,7 +125,7 @@ async function auth(request: FastifyRequest, reply: FastifyReply) {
         }
 
         const token = await reply.jwtSign({
-            name: user.id,
+            name: user.name,
             avatarUrl: user.avatarUrl,
         }, {
             sub: user.id,

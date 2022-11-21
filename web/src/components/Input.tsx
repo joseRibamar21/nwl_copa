@@ -1,21 +1,13 @@
 import { DetailedHTMLProps, InputHTMLAttributes } from "react"
 
 interface InputProps extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
-    children: React.ReactNode
-    handleClick?: Function
-    disable?: boolean
+  theme?: "PRYMARY" | "SECUNDARY"
 }
 
-const Input = ({ children, handleClick, disable = false, ...props }: InputProps) => {
-
-    return (
-        <input {...props} className={`
-        ${disable ? "bg-gray-400 cursor-default  shadow  " : `bg-primary hover:brightness-95 active:brightness-90`} 
-        rounded-xl px-3 py-1 w-[100%] text-textLight shadow-xl h-10`
-        }>
-            {children}
-        </input>
-    )
+export default function Input(props: InputProps) {
+  return (
+    <input {...props}
+      className="h-8 rounded text-white bg-slate-800 p-3 w-[100%] shadow-sm" />
+  )
 }
 
-export default Input

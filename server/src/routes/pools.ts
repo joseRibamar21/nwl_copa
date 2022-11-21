@@ -10,7 +10,7 @@ export async function poolRoutes(fastify: FastifyInstance) {
 
   fastify.get('/pools/me', { onRequest: [authenticate] }, mePools)
 
-  fastify.get('/pools', openPools)
+  fastify.get('/pools', { onRequest: [authenticate] } ,openPools)
 
   fastify.get('/pools/:id', { onRequest: [authenticate] }, onePool)
 

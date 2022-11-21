@@ -11,6 +11,7 @@ module.exports = {
         primaryBorder: "#64D408",
         textLight:"fff",
         backgroundLight:"#EFF5FF",
+        background:"#212121",
         cardBg: "#fff",
         secondary: "rgba(25, 222, 11, 0.1)",
         tertiary: "#D7E7FE",

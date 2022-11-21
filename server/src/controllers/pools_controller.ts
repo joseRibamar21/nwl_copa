@@ -45,8 +45,11 @@ async function mePools(request: FastifyRequest, reply: FastifyReply) {
 async function openPools(request: FastifyRequest, reply: FastifyReply) {
     const pools = await prisma.pool.findMany({
         where: {
-            open: true
+            open: true,
+
+          
         },
+
         include: {
             _count: {
                 select: {
@@ -71,7 +74,8 @@ async function openPools(request: FastifyRequest, reply: FastifyReply) {
                     name: true,
                 }
             },
-        }
+        },
+        take: 10
     })
 
 
@@ -160,58 +164,58 @@ async function createPool(request: FastifyRequest, reply: FastifyReply) {
     return reply.status(201).send({ code })
 }
 
-async function joinPool(request: FastifyRequest, reply: FastifyReply){
+async function joinPool(request: FastifyRequest, reply: FastifyReply) {
     const joinPoolBody = z.object({
         code: z.string()
-      })
-  
-      const { code } = joinPoolBody.parse(request.body)
-  
-      const pool = await prisma.pool.findUnique({
+    })
+
+    const { code } = joinPoolBody.parse(request.body)
+
+    const pool = await prisma.pool.findUnique({
         where: {
-          code,
+            code,
         },
         include: {
-          participants: {
-            where: {
-              userId: request.user.sub
+            participants: {
+                where: {
+                    userId: request.user.sub
+                }
             }
-          }
         }
-      })
-  
-      if (!pool) {
+    })
+
+    if (!pool) {
         return reply.status(400).send({
-          message: 'Pool not found.'
+            message: 'Pool not found.'
         })
-      }
-  
-      if (pool.participants.length > 0) {
+    }
+
+    if (pool.participants.length > 0) {
         return reply.status(400).send({
-          message: 'You already joined this pool.'
+            message: 'You already joined this pool.'
         })
-      }
-  
-      if (!pool.ownerId) {
+    }
+
+    if (!pool.ownerId) {
         await prisma.pool.update({
-          where: {
-            id: pool.id
-          },
-          data: {
-            ownerId: request.user.sub
-          }
+            where: {
+                id: pool.id
+            },
+            data: {
+                ownerId: request.user.sub
+            }
         })
-      }
-  
-      await prisma.participant.create({
+    }
+
+    await prisma.participant.create({
         data: {
-          poolId: pool.id,
-          userId: request.user.sub
+            poolId: pool.id,
+            userId: request.user.sub
         }
-      })
-  
-      return reply.status(201).send()
-  
+    })
+
+    return reply.status(201).send()
+
 }
 
 export { mePools, openPools, onePool, createPool, joinPool }
