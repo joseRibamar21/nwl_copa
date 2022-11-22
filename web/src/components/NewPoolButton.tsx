@@ -9,7 +9,7 @@ import Input from './Input';
 export default function NewPoolButton() {
   const [title, setTitle] = useState<string>('')
   const [urlImage, setUrlImage] = useState<string>('')
-  const [check, setCheck] = useState<boolean>(false)
+  const [check, setCheck] = useState<boolean>(true)
 
   function onChange(e: React.FormEvent<HTMLInputElement>) {
     setTitle(e.currentTarget.value)

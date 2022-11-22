@@ -4,6 +4,8 @@ import { Spinner } from "phosphor-react";
 import { useEffect, useState } from "react";
 import { Game } from "../../../@types/game";
 import { Pool } from "../../../@types/pool";
+import { User } from "../../../@types/user";
+import NewGameButton from "../../../components/NewGameButton";
 import { api } from "../../../services/api";
 
 export default function OnePool() {
@@ -11,6 +13,7 @@ export default function OnePool() {
   const [pool, setPool] = useState({} as Pool)
   const [games, setGames] = useState([] as Game[])
   const [loading, setLoading] = useState(true)
+  let user = {} as User;
 
   async function loadPool() {
     setLoading(true)
@@ -19,15 +22,20 @@ export default function OnePool() {
     const gamesData = await api.get('pools/' + id + '/games')
     setGames(gamesData.data.game)
     console.log(poolData)
-    console.log(gamesData.data.game[0].guesses[0])
+    console.log(gamesData.data.game[0]?.guesses[0])
     if (poolData.data) {
       setPool(poolData.data['pool'])
     }
     setLoading(false)
+    console.log("PoolIDOwner: " + pool.owner?.id)
+    console.log("userId: " + user.id)
   }
 
 
   useEffect(() => {
+    if (sessionStorage.getItem('user')) {
+      user = JSON.parse(sessionStorage.getItem('user')!)
+    } 
     loadPool()
   }, [])
 
@@ -62,7 +70,13 @@ export default function OnePool() {
             <span>Code: {pool.code}</span>
           </div>
         </div>
-
+        {
+          pool? user.id === pool.owner.id ? <div className="flex flex-row-reverse">
+          <div className="w-[200px]"><NewGameButton idPool={pool.id} refresh={loadPool} /></div>
+        </div>
+          :
+          <>dwadawd</>:<></>
+        }
         <div className="flex flex-col pt-12 gap-5">
           <h1>Participantes</h1>
           <div className=" flex gap-6 flex-wrap">
@@ -84,7 +98,7 @@ export default function OnePool() {
                 <span>VS</span>
                 <h4>{e.secondTeam}</h4>
               </div>
-              {e.guesses.map((g,i) => {
+              {e.guesses.map((g, i) => {
                 return <div key={i} className="flex flex-row gap-5 items-center w-[100] rounded-md bg-gray-900 p-3">
                   <img src={g.participant.user.avatarUrl} alt={g.participant.user.avatarUrl} width={60} height={60} className="rounded-full" />
                   <span>{g.participant.user.name}</span>
