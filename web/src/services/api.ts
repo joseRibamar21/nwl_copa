@@ -8,7 +8,7 @@ api.interceptors.request.use(function (config) {
   const token = sessionStorage.getItem('token')
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`
-  }else{
+  } else {
     sessionStorage.removeItem('token')
   }
   return config;
@@ -18,11 +18,11 @@ api.interceptors.request.use(function (config) {
 
 api.interceptors.response.use(function (response) {
   console.log(response)
-  
+
   return response;
 }, function (error) {
   console.log(error)
-  if(error.response.status === 401){
-      
+  if (error.response.status === 401) {
+
   }
 });

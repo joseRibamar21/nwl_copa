@@ -1,15 +1,16 @@
+import { useRouter } from "next/router";
 import { createContext, ReactNode, useState } from "react";
-import UserI from "../@types/user";
+import { User } from "../@types/user";
 
 import { api } from "../services/api";
 
 
 
 export interface AuthContextDataProps {
-  user: UserI;
+  user: User;
   isUserLoading: boolean;
   singIn: (email: string, password: string) => Promise<void>;
-  refreshUser: ()=>void
+  inicialization(): void
 }
 
 interface AuthProviderProps {
@@ -19,8 +20,9 @@ interface AuthProviderProps {
 export const AuthContext = createContext({} as AuthContextDataProps);
 
 export function AuthContextProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<UserI>({} as UserI)
+  const [user, setUser] = useState<User>({} as User)
   const [isUserLoading, setIsUserLoading] = useState(false)
+  const router = useRouter()
 
   async function singIn(email: string, password: string) {
     try {
@@ -42,10 +44,22 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
     }
   }
 
-  function refreshUser(){
+  async function inicialization() {
+    setIsUserLoading(true);
     const dataUser = sessionStorage.getItem('user');
-    if(dataUser)
-    setUser(JSON.parse(dataUser))
+    try {
+      console.log("INICIOUUUUUU")
+      const me = await api.get('/me');
+      console.log(me.data)
+      setUser(me.data)
+
+      if (dataUser) {
+        setUser(JSON.parse(me.data))
+      }
+    } catch (error) {
+      router.replace('/')
+    }
+    setIsUserLoading(false);
   }
 
   return (
@@ -53,7 +67,7 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
       singIn,
       isUserLoading,
       user,
-      refreshUser
+      inicialization
     }}>
       {children}
     </AuthContext.Provider>

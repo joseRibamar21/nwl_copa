@@ -7,6 +7,8 @@ import { api } from "../../services/api";
 
 import NavBar from "../../components/NavBar";
 import NewPoolButton from "../../components/NewPoolButton";
+import { toast } from "react-toastify";
+import JoinPoolButton from "../../components/JoinPoolButton";
 
 export default function Home() {
   const [mePools, setMePools] = useState([])
@@ -19,7 +21,11 @@ export default function Home() {
     ]).then(axios.spread((data1, data2) => {
       setMePools(data1.data['pools'])
       setPools(data2.data['pools'])
-    }))
+    })).catch(e=>{
+      toast("Erro ao carregar salas", {
+        type:'error'
+      })
+    })
   }
   
   useEffect(() => {
@@ -31,15 +37,11 @@ export default function Home() {
       <Head>
         <title>Bolão</title>
       </Head>
-
-      <NavBar />
       <div className="flex flex-col">
         <div className="p-3">
           <div className="flex flex-row-reverse gap-4">
             <div className="w-48 py-4 ">
-              <ElevatedButton theme="SECUNDARY">
-                Entrar com Codigo
-              </ElevatedButton>
+            <JoinPoolButton/>
             </div>
             <div className="w-48 py-4 ">
               <NewPoolButton />

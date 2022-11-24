@@ -33,11 +33,8 @@ export function ListPools({ list, title, isMe, refresh }: ListPoolsPops) {
     <div className="flex flex-row flex-wrap">
       {list.map((e, i) => {
         return <div key={i}
-        onClick={()=>{
-          router.push('pools/'+e.id)
-        }}
          className="flex flex-col cursor-pointer bg-green-800 shadow m-3 rounded-2xl max-w-sm" >
-          <img src={e.urlImage} alt="image" width={300} height={300} className='rounded-t-2xl' />
+          <Link href={'pools/'+e.id}><img src={e.urlImage} alt="image" width={300} height={300} className='rounded-t-2xl' /></Link>
           <div className="flex flex-col p-3">
             <strong className="text-2xl">{e.title}</strong>
             <span>Code: {e.code}</span>

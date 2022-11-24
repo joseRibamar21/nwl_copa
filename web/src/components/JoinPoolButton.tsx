@@ -1,4 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
+import { useRouter } from 'next/router';
 import { PlusCircle } from 'phosphor-react';
 import { FormEvent, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -6,40 +7,38 @@ import { api } from '../services/api';
 import CheckBox from './Checkbox';
 import ElevatedButton from './ElevatedButton';
 import Input from './Input';
+import TextButton from './TextButton';
 
-export default function NewPoolButton() {
-  const [title, setTitle] = useState<string>('')
-  const [urlImage, setUrlImage] = useState<string>('')
-  const [check, setCheck] = useState<boolean>(true)
+export default function JoinPoolButton() {
+  const [code, setCode] = useState<string>('')
+  const router = useRouter();
 
   function onChange(e: React.FormEvent<HTMLInputElement>) {
-    setTitle(e.currentTarget.value)
-  };
-  function onChangeUrlImage(e: React.FormEvent<HTMLInputElement>) {
-    setUrlImage(e.currentTarget.value)
+    setCode(e.currentTarget.value)
   };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    /* event.preventDefault(); */
-    try {
-      await api.post('pools', {
-        title,
-        urlImage,
-        open: check
-      })
-      toast("Sala cadastrado com sucesso!",{type:"success"})
-    } catch (error) {
-      toast("Erro ao cadastrar sala!",{type:"error"})
-      console.log(error)
-    }
+    event.preventDefault();
+
+    const t = await api.post('pools/join', {
+      code
+    }).catch((e)=>{
+      console.log("AKiiiiiiiiii")
+      console.log(e)
+      toast(e.request?.data?.message, { type: "error" })
+    }).then(()=>{
+      setCode('')
+      toast("Agora vc está participando!", { type: "success" })
+
+    })
+
   }
 
   return <Dialog.Root>
     <Dialog.Trigger className=''>
-      <ElevatedButton>
-        <span>Criar Bolão</span>
-        <PlusCircle size={32} />
-      </ElevatedButton>
+      <TextButton>
+        <span>Participar de um Bolão com o codigo</span>
+      </TextButton>
     </Dialog.Trigger>
     <Dialog.Portal>
       <Dialog.Overlay className="bg-black/80 inset-0 fixed">
@@ -51,24 +50,11 @@ export default function NewPoolButton() {
           <form onSubmit={handleSubmit} className='mt-8 flex flex-col gap-4'>
             <Input
               type='text'
-              placeholder='Nome da Sala'
-              value={title}
+              placeholder='Codigo da Sala'
+              value={code}
               required
               onChange={onChange}
               className='w-[100%]' />
-
-            <Input
-              type='url'
-              placeholder='Url para imagem'
-              value={urlImage}
-              required
-              onChange={onChangeUrlImage}
-              className='w-[100%]' />
-            <div className='flex flex-row'>
-              <div onClick={() => { setCheck(!check) }}>
-                <CheckBox title='Sala Privada?' />
-              </div>
-            </div>
 
             <ElevatedButton onClick={e => handleSubmit}>
               Confirmar

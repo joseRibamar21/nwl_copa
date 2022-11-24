@@ -7,18 +7,19 @@ import { api } from '../services/api';
 import ElevatedButton from './ElevatedButton';
 import Input from './Input';
 
-interface NewGameButtonPops{
+interface NewGessButtonPops {
   idPool: string
-  refresh():void
+  gameId: string
+  title: string
+  refresh?(): void
 }
 
-export default function NewGameButton({idPool,refresh}:NewGameButtonPops) {
+export default function NewGessButton({ idPool, gameId, refresh, title }: NewGessButtonPops) {
   const [openDialog, setOpenDialog] = useState<boolean>(false)
 
   const [dataForm, setDataForm] = useState({
     firstTeam: "",
-    secondTeam: "",
-    date: "",
+    secondTeam: ""
   })
 
   const onChangeInput = (e: { target: { name: string; value: string; }; }) => setDataForm({ ...dataForm, [e.target.name]: e.target.value });
@@ -26,19 +27,22 @@ export default function NewGameButton({idPool,refresh}:NewGameButtonPops) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     console.log(dataForm)
     event.preventDefault();
-
+    
     try {
-      await api.post('pools/'+ idPool+"/games", dataForm)
+      await api.post("pools/"+idPool+"/games/guesses", {
+        gameId,
+        firstTeamPoints: Number.parseInt(dataForm.firstTeam),
+        secondTeamPoints: Number.parseInt(dataForm.secondTeam)
+      })
       setDataForm({
         firstTeam: "",
         secondTeam: "",
-        date: "",
       })
-      refresh()
+      refresh? refresh(): null
       setOpenDialog(false)
-      toast("Jogo cadastrado com sucesso!",{type:"success"})
+      toast("Palpite cadastrado com sucesso!",{type:"success"})
     } catch (error) {
-      toast("Erro ao cadastrar jogo!",{type:"error"})
+      toast("Erro ao cadastrar palpite!",{type:"error"})
       console.log(error)
     }
   }
@@ -46,56 +50,44 @@ export default function NewGameButton({idPool,refresh}:NewGameButtonPops) {
   useState
 
   return <Dialog.Root open={openDialog}>
-    <Dialog.Trigger className='' onClick={() => setOpenDialog(true)}>
-      <ElevatedButton>
-        <span>Criar Jogo</span>
-        <PlusCircle size={32} />
-      </ElevatedButton>
+    <Dialog.Trigger className='flex flex-row gap-2 items-center font-bold' onClick={() => setOpenDialog(true)}>
+      Adicionar palpite
+      <PlusCircle size={32} />
     </Dialog.Trigger>
     <Dialog.Portal>
       <Dialog.Overlay className="bg-black/80 inset-0 fixed">
         <Dialog.Content className="fixed bg-background py-8 px-10 text-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg w-[480px] shadow-lg shadow-black/25">
           <Dialog.Title className="flex flex-row justify-between text-2xl text-white font-black">
-            <h2>Crie um novo Jogo</h2>
-            <Dialog.Close onClick={() =>{
+            <h2>{title}</h2>
+            <Dialog.Close onClick={() => {
               setDataForm({
                 firstTeam: "",
-                secondTeam: "",
-                date: "",
+                secondTeam: ""
               })
               setOpenDialog(false)
-              }}>
+            }}>
               <X size={32} />
             </Dialog.Close>
           </Dialog.Title>
 
-          <form onSubmit={handleSubmit} className='mt-8 flex flex-col gap-4'>
+          <form onSubmit={handleSubmit} className='mt-8 flex flex-row gap-4'>
             <Input
-              type='text'
-              placeholder='Nome do primeiro time'
+              type='number'
+              placeholder='0'
               name='firstTeam'
               value={dataForm.firstTeam}
               required
               onChange={onChangeInput}
-              className='w-[100%]' />
+              className='w-[30px]' />
 
             <Input
-              type='text'
-              placeholder='Nome do segundo time'
+              type='number'
+              placeholder='0'
               name='secondTeam'
               value={dataForm.secondTeam}
               required
               onChange={onChangeInput}
-              className='w-[100%]' />
-
-            <Input
-              type='datetime-local'
-              placeholder='Data e hora do jogo'
-              name='date'
-              value={dataForm.date}
-              required
-              onChange={onChangeInput}
-              className='w-[100%]' />
+              className='w-[30px]' />
 
             <ElevatedButton onClick={e => handleSubmit}>
               Confirmar
