@@ -20,6 +20,8 @@ model Pool {
   code         String        @unique
   createdAt    DateTime      @default(now())
   open         Boolean       @default(false)
+  restrict     Boolean       @default(false)
+  description  String?
   ownerId      String?
   owner        User?         @relation(fields: [ownerId], references: [id])
   participants Participant[]
@@ -51,13 +53,15 @@ model User {
 }
 
 model Game {
-  id         String   @id @default(cuid())
-  date       DateTime
-  firstTeam  String
-  secondTeam String
-  poolId     String
-  guesses    Guess[]
-  pool       Pool     @relation(fields: [poolId], references: [id])
+  id               String   @id @default(cuid())
+  date             DateTime
+  firstTeam        String
+  secondTeam       String
+  firstTeamPoints  Int?
+  secondTeamPoints Int?
+  poolId           String
+  guesses          Guess[]
+  pool             Pool     @relation(fields: [poolId], references: [id])
 }
 
 model Guess {
