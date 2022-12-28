@@ -1,6 +1,5 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
 }
 
 generator erd {
@@ -26,18 +25,21 @@ model Pool {
   owner        User?         @relation(fields: [ownerId], references: [id])
   participants Participant[]
   Game         Game[]
+
+  @@index([ownerId])
 }
 
 model Participant {
-  id      String  @id @default(cuid())
+  id      String    @id @default(cuid())
   userId  String
   poolId  String
-  points  Int     @default(0)
-  user    User    @relation(fields: [userId], references: [id])
-  pool    Pool    @relation(fields: [poolId], references: [id])
+  user    User      @relation(fields: [userId], references: [id])
+  pool    Pool      @relation(fields: [poolId], references: [id])
   guesses Guess[]
+  Ranking Ranking[]
 
   @@unique([userId, poolId])
+  @@index([poolId])
 }
 
 model User {
@@ -62,6 +64,16 @@ model Game {
   poolId           String
   guesses          Guess[]
   pool             Pool     @relation(fields: [poolId], references: [id])
+
+  @@index([poolId])
+}
+
+model Ranking {
+  id            String      @id @default(cuid())
+  participant   Participant @relation(fields: [participantId], references: [id])
+  participantId String
+
+  @@index([participantId])
 }
 
 model Guess {
@@ -75,4 +87,5 @@ model Guess {
   participant      Participant @relation(fields: [participantId], references: [id])
 
   @@unique([participantId, gameId])
+  @@index([gameId])
 }
