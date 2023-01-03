@@ -4,20 +4,21 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Game } from "../../../@types/game";
 import { Room } from "../../../@types/room";
-import { User } from "../../../@types/user";
 import ListGamesPool from "../../../components/ListGamesPool";
 import LoadPage from "../../../components/LoadPage";
-import NewGameButton from "../../../components/NewGameButton";
+import { parseCookies } from "nookies";
 
 import { roomSpecificService } from "../../../services/rooms_services";
 import { gamesRoomService } from "../../../services/games_services";
+import { GetServerSideProps } from "next";
+import { useAuth } from "../../../hooks/useAuth";
 
 export default function OneRoom() {
   const { query } = useRouter()
   const [pool, setPool] = useState({} as Room)
   const [games, setGames] = useState([] as Game[])
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState({} as User)
+  const {user} = useAuth()
   const id = query.id
 
   const reloading = async () => {
@@ -32,10 +33,6 @@ export default function OneRoom() {
   }
 
   useEffect(() => {
-    if (sessionStorage.getItem('user')) {
-      setUser(JSON.parse(sessionStorage.getItem('user')!))
-
-    }
     const loadRoom = async () => {
       setLoading(true)
       try {
@@ -52,12 +49,12 @@ export default function OneRoom() {
         }
         setLoading(false)
         console.log("PoolIDOwner: " + pool.owner?.id)
-        console.log("userId: " + user.id)
+        console.log("userId: " + user?.id)
       } catch (error) {
       }
     }
     loadRoom()
-  }, [id, pool.owner?.id, user.id])
+  }, [id, pool.owner?.id, user?.id])
 
   if (loading) {
     return <LoadPage />
@@ -88,7 +85,7 @@ export default function OneRoom() {
             </div>
           </div>
           {
-            pool.owner?.id == user.id ?
+            pool.owner?.id == user?.id ?
               <div className="flex flex-row-reverse">
                 
               </div>
@@ -105,9 +102,26 @@ export default function OneRoom() {
               })}
             </div>
           </div>
-          <ListGamesPool poolId={pool.id} games={games} refresh={reloading}  isOwner={pool.owner?.id == user.id} />
+          <ListGamesPool poolId={pool.id} games={games} refresh={reloading}  isOwner={pool.owner?.id == user?.id} />
         </div>
       </>
     )
+  }
+}
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const { ['nextauth.token']: token } = parseCookies(ctx)
+  
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      }
+    }
+  }
+
+  return {
+    props: {}
   }
 }

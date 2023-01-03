@@ -24,7 +24,6 @@ const HoverCard = (props: Props) => {
     event.preventDefault();
     try {
       await singIn(dataForm.email,dataForm.password)
-      router.push('/home')
     } catch (e) {
       console.log(e) 
     }

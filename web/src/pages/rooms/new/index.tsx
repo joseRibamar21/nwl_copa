@@ -1,5 +1,3 @@
-
-import { api } from "../../../services/api"
 import { toast } from "react-toastify"
 import Input from "../../../components/Input"
 import ElevatedButton from "../../../components/ElevatedButton"
@@ -7,6 +5,8 @@ import CheckBox from "../../../components/Checkbox"
 import { FormEvent, useState } from "react"
 import { useRouter } from "next/router"
 import { newRoomService } from "../../../services/rooms_services"
+import { GetServerSideProps } from "next"
+import { parseCookies } from "nookies";
 
 export default function NewRoom() {
 
@@ -68,4 +68,21 @@ export default function NewRoom() {
       </div>
     </>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const { ['nextauth.token']: token } = parseCookies(ctx)
+  
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      }
+    }
+  }
+
+  return {
+    props: {}
+  }
 }

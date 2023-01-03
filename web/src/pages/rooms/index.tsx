@@ -5,9 +5,10 @@ import ElevatedButton from "../../components/ElevatedButton";
 import { ListPools } from "../../components/ListPools";
 import { api } from "../../services/api";
 
-import NavBar from "../../components/NavBar";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { GetServerSideProps } from "next";
+import { parseCookies } from "nookies";
 
 export default function Home() {
   const [mePools, setMePools] = useState([])
@@ -53,4 +54,22 @@ export default function Home() {
       </div>
     </>
   )
+}
+
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const { ['nextauth.token']: token } = parseCookies(ctx)
+  
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      }
+    }
+  }
+
+  return {
+    props: {}
+  }
 }

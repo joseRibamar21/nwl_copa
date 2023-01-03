@@ -1,16 +1,15 @@
 import { useRouter } from "next/router";
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import { User } from "../@types/user";
-
+import { setCookie, destroyCookie, parseCookies } from "nookies"
 import { api } from "../services/api";
-
-
+import Router from 'next/router'
 
 export interface AuthContextDataProps {
-  user: User;
+  user: User | null;
   isUserLoading: boolean;
   singIn: (email: string, password: string) => Promise<void>;
-  inicialization(): void
+  singOut(): void ;
 }
 
 interface AuthProviderProps {
@@ -20,7 +19,7 @@ interface AuthProviderProps {
 export const AuthContext = createContext({} as AuthContextDataProps);
 
 export function AuthContextProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User>({} as User)
+  const [user, setUser] = useState<User| null>(null)
   const [isUserLoading, setIsUserLoading] = useState(false)
   const router = useRouter()
 
@@ -32,10 +31,11 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
         password
       })
       console.log(res)
-      sessionStorage.setItem('token', res.data.token)
-      sessionStorage.setItem('user', JSON.stringify(res.data.user))
+      setCookie(undefined,'nextauth.token',res.data.token,{maxAge: 24 * 60 * 60 * 5})
+      setCookie(undefined,'nextauth.user',JSON.stringify(res.data.user),{maxAge: 24 * 60 * 60 * 5})
       api.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
       setUser(res.data.user)
+      Router.replace('/rooms')
     } catch (error) {
       console.log(error)
       throw error;
@@ -44,30 +44,37 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
     }
   }
 
-  async function inicialization() {
-    setIsUserLoading(true);
-    const dataUser = sessionStorage.getItem('user');
+  function singOut() {
     try {
-      console.log("INICIOUUUUUU")
-      const me = await api.get('/me');
-      console.log(me.data)
-      setUser(me.data)
-
-      if (dataUser) {
-        setUser(JSON.parse(me.data))
-      }
+      destroyCookie(undefined,'nextauth.token')
+      destroyCookie(undefined,'nextauth.user')
+      Router.replace('/singOut')
     } catch (error) {
-      router.replace('/')
+      console.log(error)
+      throw error;
     }
-    setIsUserLoading(false);
   }
+
+
+  useEffect(()=>{
+    const { "nextauth.token": token } = parseCookies()
+    if(token){
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      const { "nextauth.user": userData } = parseCookies()
+      const objectUser = JSON.parse(userData)
+      console.log(objectUser.user as User)
+      setUser(objectUser)
+    }else{
+      Router.replace('/')
+    }
+  }, [])
 
   return (
     <AuthContext.Provider value={{
       singIn,
+      singOut,
       isUserLoading,
-      user,
-      inicialization
+      user
     }}>
       {children}
     </AuthContext.Provider>
