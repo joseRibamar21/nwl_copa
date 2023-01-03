@@ -1,18 +1,16 @@
 import { FastifyInstance } from "fastify"
-import { games, newGame } from "../controllers/game_controller"
+import { closeGame, games, newGame } from "../controllers/game_controller"
 import { authenticate } from "../plugins/authenticate"
 
 
 
 
 export async function gameRoutes(fastify: FastifyInstance) {
-  fastify.post('/pools/:poolId/games', {
-    onRequest: [authenticate]
-  }, newGame)
+  fastify.post('/room/:roomId/games', { onRequest: [authenticate] }, newGame)
 
-  fastify.get('/pools/:poolId/games', {
-    onRequest: [authenticate]
-  }, games)
+  fastify.get('/room/:roomId/games', { onRequest: [authenticate] }, games)
+
+  fastify.post('/games/:gameId/close', { onRequest: [authenticate] }, closeGame)
 }
 
 /* fastify.get('/pools/:id/games', {

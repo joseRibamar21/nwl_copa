@@ -1,4 +1,4 @@
-export type Pool = {
+export type Room = {
   id: string
   code: string
   title: string

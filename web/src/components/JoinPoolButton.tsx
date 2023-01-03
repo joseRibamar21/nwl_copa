@@ -20,10 +20,9 @@ export default function JoinPoolButton() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const t = await api.post('pools/join', {
+    const t = await api.post('room/join', {
       code
     }).catch((e)=>{
-      console.log("AKiiiiiiiiii")
       console.log(e)
       toast(e.request?.data?.message, { type: "error" })
     }).then(()=>{

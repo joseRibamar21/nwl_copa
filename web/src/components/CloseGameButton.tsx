@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { PlusCircle, X } from 'phosphor-react';
+import { CheckCircle, X } from 'phosphor-react';
 import { FormEvent, useState } from 'react';
 import { toast } from 'react-toastify';
 import { api } from '../services/api';
@@ -7,18 +7,18 @@ import { api } from '../services/api';
 import ElevatedButton from './ElevatedButton';
 import Input from './Input';
 
-interface NewGameButtonPops{
-  idPool: string
-  refresh():void
+interface CloseGameButtonPops {
+  gameId: string
+  refresh?(): void
+  title: string
 }
 
-export default function NewGameButton({idPool,refresh}:NewGameButtonPops) {
+export default function CloseGameButton({ gameId, refresh,title }: CloseGameButtonPops) {
   const [openDialog, setOpenDialog] = useState<boolean>(false)
 
   const [dataForm, setDataForm] = useState({
     firstTeam: "",
-    secondTeam: "",
-    date: "",
+    secondTeam: ""
   })
 
   const onChangeInput = (e: { target: { name: string; value: string; }; }) => setDataForm({ ...dataForm, [e.target.name]: e.target.value });
@@ -26,74 +26,71 @@ export default function NewGameButton({idPool,refresh}:NewGameButtonPops) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     console.log(dataForm)
     event.preventDefault();
-
+    
     try {
-      await api.post('room/'+ idPool+"/games", dataForm)
+      const data = await api.post("games/"+gameId+"/close", {
+        gameId,
+        firstTeamPoints: Number.parseInt(dataForm.firstTeam),
+        secondTeamPoints: Number.parseInt(dataForm.secondTeam)
+      })
+
+      if(data.status !== 200){
+        throw "Error"
+      }
+
       setDataForm({
         firstTeam: "",
         secondTeam: "",
-        date: "",
       })
-      refresh()
+      refresh? refresh(): null
       setOpenDialog(false)
-      toast("Jogo cadastrado com sucesso!",{type:"success"})
+      toast("Jogo encerrado!",{type:"success"})
     } catch (error) {
-      toast("Erro ao cadastrar jogo!",{type:"error"})
+      toast("Erro ao encerrar jogo",{type:"error"})
       console.log(error)
     }
   }
 
   return <Dialog.Root open={openDialog}>
-    <Dialog.Trigger className='' onClick={() => setOpenDialog(true)}>
-      <ElevatedButton>
-        <span>Criar Jogo</span>
-        <PlusCircle size={32} />
-      </ElevatedButton>
+    <Dialog.Trigger className='flex flex-row gap-2 items-center font-bold' onClick={() => setOpenDialog(true)}>
+      Encerrar Game
+      <CheckCircle size={32} />
     </Dialog.Trigger>
     <Dialog.Portal>
       <Dialog.Overlay className="bg-black/80 inset-0 fixed">
         <Dialog.Content className="fixed bg-background py-8 px-10 text-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg w-[480px] shadow-lg shadow-black/25">
           <Dialog.Title className="flex flex-row justify-between text-2xl text-white font-black">
-            Crie um novo Jogo
-            <Dialog.Close onClick={() =>{
+            Encerrar jogo {title}
+            <Dialog.Close onClick={() => {
               setDataForm({
                 firstTeam: "",
-                secondTeam: "",
-                date: "",
+                secondTeam: ""
               })
               setOpenDialog(false)
-              }}>
+            }}>
               <X size={32} />
             </Dialog.Close>
           </Dialog.Title>
 
-          <form onSubmit={handleSubmit} className='mt-8 flex flex-col gap-4'>
+          <form onSubmit={handleSubmit} className='mt-8 flex flex-row gap-4'>
             <Input
-              type='text'
-              placeholder='Nome do primeiro time'
+              type='number'
+              placeholder='0'
               name='firstTeam'
               value={dataForm.firstTeam}
               required
+              min={0}
               onChange={onChangeInput}
-              className='w-[100%]' />
+              className='w-[30px]' />
 
             <Input
-              type='text'
-              placeholder='Nome do segundo time'
+              type='number'
+              placeholder='0'
               name='secondTeam'
               value={dataForm.secondTeam}
               required
               onChange={onChangeInput}
-              className='w-[100%]' />
-
-            <Input
-              type='datetime-local'
-              placeholder='Data e hora do jogo'
-              name='date'
-              value={dataForm.date}
-              required
-              onChange={onChangeInput}
-              className='w-[100%]' />
+              className='w-[30px]' />
 
             <ElevatedButton onClick={e => handleSubmit}>
               Confirmar

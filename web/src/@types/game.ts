@@ -6,4 +6,6 @@ export type Game ={
   firstTeam: string
   secondTeam:  string
   guesses: Guess[]
+  firstTeamPoints: number | null
+  secondTeamPoints: number | null
 }

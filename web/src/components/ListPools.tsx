@@ -1,5 +1,5 @@
-import Image from "next/image"
-import { Pool } from "../@types/pool"
+/* eslint-disable @next/next/no-img-element */
+import { Room } from "../@types/room"
 import { Play, Share } from "phosphor-react"
 import { api } from "../services/api"
 import Link from "next/link"
@@ -7,7 +7,7 @@ import { useRouter } from "next/router"
 
 interface ListPoolsPops {
   title: String
-  list: Pool[]
+  list: Room[]
   isMe?: boolean
   refresh(): void
 }
@@ -15,13 +15,13 @@ interface ListPoolsPops {
 export function ListPools({ list, title, isMe, refresh }: ListPoolsPops) {
   const router = useRouter()
 
-  if (list.length === 0) {
+  if (list?.length === 0) {
     return <></>
   }
 
   async function enterPool(code: string) {
     try {
-      await api.post('/pools/join', { code })
+      await api.post('/room/join', { code })
       refresh()
     } catch (error) {
       alert(error)
@@ -31,10 +31,10 @@ export function ListPools({ list, title, isMe, refresh }: ListPoolsPops) {
   return <>
     <h3 className="text-3xl font-bold">{title}</h3>
     <div className="flex flex-row flex-wrap">
-      {list.map((e, i) => {
+      {list?.map((e, i) => {
         return <div key={i}
          className="flex flex-col cursor-pointer bg-green-800 shadow m-3 rounded-2xl max-w-sm" >
-          <Link href={'pools/'+e.id}><img src={e.urlImage} alt="image" width={300} height={300} className='rounded-t-2xl' /></Link>
+          <Link href={'rooms/'+e.id}><img src={e.urlImage} alt="image" width={300} height={200} className='rounded-t-2xl w-80 h-52 object-cover' /></Link>
           <div className="flex flex-col p-3">
             <strong className="text-2xl">{e.title}</strong>
             <span>Code: {e.code}</span>

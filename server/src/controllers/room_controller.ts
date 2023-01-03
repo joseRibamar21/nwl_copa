@@ -2,10 +2,11 @@ import { FastifyReply, FastifyRequest } from "fastify"
 import ShortUniqueId from "short-unique-id"
 import { z } from "zod"
 import { prisma } from "../lib/prisma"
+import { errorMenssage } from "../helpers/utils"
 
 
-async function mePools(request: FastifyRequest, reply: FastifyReply) {
-    const pools = await prisma.pool.findMany({
+async function meRooms(request: FastifyRequest, reply: FastifyReply) {
+    const room = await prisma.room.findMany({
         where: {
             participants: {
                 some: {
@@ -40,15 +41,13 @@ async function mePools(request: FastifyRequest, reply: FastifyReply) {
         },
         take: 10
     })
-    return { pools }
+    return { room }
 }
 
-async function openPools(request: FastifyRequest, reply: FastifyReply) {
-    const pools = await prisma.pool.findMany({
+async function openRooms(request: FastifyRequest, reply: FastifyReply) {
+    const rooms = await prisma.room.findMany({
         where: {
             open: true,
-
-          
         },
 
         include: {
@@ -63,6 +62,8 @@ async function openPools(request: FastifyRequest, reply: FastifyReply) {
 
                     user: {
                         select: {
+                            id:true,
+                            name: true,
                             avatarUrl: true
                         }
                     },
@@ -76,20 +77,20 @@ async function openPools(request: FastifyRequest, reply: FastifyReply) {
                 }
             },
         },
-        take: 10
+        /* take: 10 */
     })
 
-    return { pools }
+    return { rooms }
 }
 
-async function onePool(request: FastifyRequest, reply: FastifyReply) {
-    const getPoolParams = z.object({
+async function oneRoom(request: FastifyRequest, reply: FastifyReply) {
+    const getRoomParams = z.object({
         id: z.string(),
     })
 
-    const { id } = getPoolParams.parse(request.params)
+    const { id } = getRoomParams.parse(request.params)
 
-    const pool = await prisma.pool.findUnique({
+    const room = await prisma.room.findUnique({
         where: {
             id,
         },
@@ -102,7 +103,6 @@ async function onePool(request: FastifyRequest, reply: FastifyReply) {
             participants: {
                 select: {
                     id: true,
-
                     user: {
                         select: {
                             name: true,
@@ -117,34 +117,51 @@ async function onePool(request: FastifyRequest, reply: FastifyReply) {
                     name: true,
                 }
             },
+            ranking: {
+                select: {
+                    points: true,
+                    participant: {
+                        select: {
+                            id: true,
+                            user: {
+                                select: {
+                                    name: true,
+                                    avatarUrl: true
+                                }
+                            },
+
+                        },
+                    }
+                }
+            }
         }
     })
 
-    return { pool }
+    return { room }
 
 }
 
-async function createPool(request: FastifyRequest, reply: FastifyReply) {
+async function createRoom(request: FastifyRequest, reply: FastifyReply) {
     const createPoolBody = z.object({
         title: z.string(),
         urlImage: z.string(),
         open: z.boolean()
     })
-    const { title, urlImage ,open } = createPoolBody.parse(request.body)
+    const { title, urlImage, open } = createPoolBody.parse(request.body)
 
     const generateCode = new ShortUniqueId({ length: 6 })
     const code = String(generateCode()).toUpperCase()
-
+    console.log(title)
     try {
         await request.jwtVerify()
 
-        await prisma.pool.create({
+        const newRoom = await prisma.room.create({
             data: {
                 title,
                 code,
-                urlImage: urlImage,
-                ownerId: request.user.sub,
+                urlImage,
                 open,
+                ownerId: request.user.sub,
                 participants: {
                     create: {
                         userId: request.user.sub
@@ -152,27 +169,22 @@ async function createPool(request: FastifyRequest, reply: FastifyReply) {
                 }
             }
         })
+        
+        return reply.status(201).send(newRoom)
     }
     catch (err) {
-        await prisma.pool.create({
-            data: {
-                title,
-                code,
-            }
-        })
+        return errorMenssage(reply, 400, "Parametros incorretos!")
     }
-
-    return reply.status(201).send({ code })
 }
 
-async function joinPool(request: FastifyRequest, reply: FastifyReply) {
+async function joinRoom(request: FastifyRequest, reply: FastifyReply) {
     const joinPoolBody = z.object({
         code: z.string()
     })
 
     const { code } = joinPoolBody.parse(request.body)
 
-    const pool = await prisma.pool.findUnique({
+    const rooms = await prisma.room.findUnique({
         where: {
             code,
         },
@@ -185,22 +197,22 @@ async function joinPool(request: FastifyRequest, reply: FastifyReply) {
         }
     })
 
-    if (!pool) {
+    if (!rooms) {
         return reply.status(400).send({
             message: 'Pool not found.'
         })
     }
 
-    if (pool.participants.length > 0) {
+    if (rooms.participants.length > 0) {
         return reply.status(400).send({
             message: 'You already joined this pool.'
         })
     }
 
-    if (!pool.ownerId) {
-        await prisma.pool.update({
+    if (!rooms.ownerId) {
+        await prisma.room.update({
             where: {
-                id: pool.id
+                id: rooms.id
             },
             data: {
                 ownerId: request.user.sub
@@ -210,7 +222,7 @@ async function joinPool(request: FastifyRequest, reply: FastifyReply) {
 
     await prisma.participant.create({
         data: {
-            poolId: pool.id,
+            roomId: rooms.id,
             userId: request.user.sub
         }
     })
@@ -219,4 +231,4 @@ async function joinPool(request: FastifyRequest, reply: FastifyReply) {
 
 }
 
-export { mePools, openPools, onePool, createPool, joinPool }
+export { meRooms, openRooms, oneRoom, createRoom, joinRoom }

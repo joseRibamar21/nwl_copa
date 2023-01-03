@@ -21,7 +21,7 @@ export default function Home() {
     event.preventDefault();
     try {
       await singIn(dataForm.email,dataForm.password)
-      router.push('/home')
+      router.replace('/rooms')
     } catch (e) {
       console.log(e) 
     }
@@ -33,26 +33,34 @@ export default function Home() {
     <Head>
       <title>Bolão</title>
     </Head>
-    <div className="flex justify-center h-[100vh] items-center">
-      <Image src='/ball_bg.jpg' alt="Background" width={906} height={512} className={"w-[100%] h-[100vh] object-cover absolute"} />
-      <div className="relative flex h-[70vh] w-[100%] max-w-[600px] rounded-2xl bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-60  bg-gray-900 shadow-2xl mx-10">
-        <form action="" onSubmit={handleClickLogin} className="flex flex-col w-[100%] justify-center items-center px-[10%]">
+    <div className="flex flex-col justify-center h-[100vh] items-center">
+    
+        <form action="" onSubmit={handleClickLogin} className="flex flex-col">
           <h1 className="text-4xl font-bold pb-10">Tiro Certo</h1>
-          <input type="text"
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="text"
             value={dataForm.email}
             name='email'
             onChange={onChangeInput}
-            placeholder="Email" className="h-8 rounded-sm mx-10 text-white bg-slate-800 p-3 w-[100%]" />
-          <input type="password"
+            placeholder="Email"
+            className="border-solid border-gray-700 border-2 p-1"
+            />
+          <label htmlFor="password">Senha</label>
+          <input
+            id="password"
+            type="password"
             value={dataForm.password}
             name='password'
             onChange={onChangeInput}
-            placeholder="Senha" className="h-8 rounded-sm mx-10 text-white bg-slate-800 p-3 m-2 w-[100%]" />
+            placeholder="Senha" 
+            className="border-solid border-gray-700 border-2 p-1"
+            />
           <div className="w-[100%]  pt-9">
             <ElevatedButton onClick={e => onChangeInput} >Login</ElevatedButton>
           </div>
         </form>
-      </div>
     </div>
     </>
   )

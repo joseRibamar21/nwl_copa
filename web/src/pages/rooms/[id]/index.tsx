@@ -1,49 +1,66 @@
+/* eslint-disable @next/next/no-img-element */
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Game } from "../../../@types/game";
-import { Pool } from "../../../@types/pool";
+import { Room } from "../../../@types/room";
 import { User } from "../../../@types/user";
 import ListGamesPool from "../../../components/ListGamesPool";
 import LoadPage from "../../../components/LoadPage";
 import NewGameButton from "../../../components/NewGameButton";
 
-import { api } from "../../../services/api";
+import { roomSpecificService } from "../../../services/rooms_services";
+import { gamesRoomService } from "../../../services/games_services";
 
-export default function OnePool() {
+export default function OneRoom() {
   const { query } = useRouter()
-  const [pool, setPool] = useState({} as Pool)
+  const [pool, setPool] = useState({} as Room)
   const [games, setGames] = useState([] as Game[])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState({} as User)
+  const id = query.id
 
-  async function loadPool() {
-    setLoading(true)
-    const id = query.id
-    const poolData = await api.get('pools/' + id)
-    const gamesData = await api.get('pools/' + id + '/games')
-    setGames(gamesData.data.game)
-    console.log(poolData)
-    console.log(gamesData.data.game[0]?.guesses[0])
-    if (poolData.data) {
-      setPool(poolData.data['pool'])
+  const reloading = async () => {
+    try {
+      const gamesData = await gamesRoomService(id as string)
+      if (gamesData) {
+        console.log(gamesData)
+        setGames(gamesData)
+      }
+    } catch (error) {
     }
-    setLoading(false)
-    console.log("PoolIDOwner: " + pool.owner?.id)
-    console.log("userId: " + user.id)
   }
-
 
   useEffect(() => {
     if (sessionStorage.getItem('user')) {
       setUser(JSON.parse(sessionStorage.getItem('user')!))
 
     }
-    loadPool()
-  }, [])
+    const loadRoom = async () => {
+      setLoading(true)
+      try {
+
+        const room = await roomSpecificService(id as string)
+        const gamesData = await gamesRoomService(id as string)
+
+        if (room) {
+          setPool(room)
+        }
+        if (gamesData) {
+          console.log(gamesData)
+          setGames(gamesData)
+        }
+        setLoading(false)
+        console.log("PoolIDOwner: " + pool.owner?.id)
+        console.log("userId: " + user.id)
+      } catch (error) {
+      }
+    }
+    loadRoom()
+  }, [id, pool.owner?.id, user.id])
 
   if (loading) {
-    return <LoadPage/>
+    return <LoadPage />
   }
 
   if (!loading && !pool) {
@@ -62,9 +79,9 @@ export default function OnePool() {
           </title>
         </Head>
 
+        <img src={pool.urlImage} alt={pool.urlImage} height={400} className="w-[100%] h-72 object-cover" />
         <div className="flex flex-col flex-wrap p-6">
           <div className="flex flex-row gap-4 flex-wrap">
-            <img src={pool.urlImage} alt="image.jpg" width={400} height={400} className="rounded-xl" />
             <div className="flex flex-col p-3">
               <h1>{pool.title}</h1>
               <span>Code: {pool.code}</span>
@@ -73,7 +90,7 @@ export default function OnePool() {
           {
             pool.owner?.id == user.id ?
               <div className="flex flex-row-reverse">
-                <div className="w-[200px]"><NewGameButton idPool={pool.id} refresh={loadPool} /></div>
+                
               </div>
               : <></>
           }
@@ -81,20 +98,16 @@ export default function OnePool() {
             <h1>Participantes</h1>
             <div className=" flex gap-6 flex-wrap">
               {pool.participants?.map((e, i) => {
-                return <div className="flex flex-row rounded-2xl p-3 bg-gradient-to-r from-blue-700 to-green-700 items-center gap-4 w-">
-                  <img src={e.user.avatarUrl} width={60} height={60} alt={e.user.name} className="rounded-full" />
+                return <div key={i} className="flex flex-row rounded-2xl p-3 bg-gradient-to-r from-blue-700 to-green-700 items-center gap-4 w-">
+                  <img src={e.user.avatarUrl} width={60} height={60} alt={e.user.name} className="rounded-full w-16 h-16 object-cover" />
                   <span className="font-bold pr-12">{e.user.name}</span>
                 </div>
               })}
             </div>
           </div>
-          <ListGamesPool poolId={pool.id} games={games} refresh={loadPool}/>
+          <ListGamesPool poolId={pool.id} games={games} refresh={reloading}  isOwner={pool.owner?.id == user.id} />
         </div>
       </>
     )
   }
-
-
 }
-
-

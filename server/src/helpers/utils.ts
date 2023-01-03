@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { compare, genSaltSync, hash } from 'bcrypt'
+import { FastifyReply } from 'fastify'
 
 export const prisma = new PrismaClient()
 
@@ -19,4 +20,11 @@ export const comparePassword = (password: string, hashedPassword: string) => {
       else res(same)
     })
   })
+}
+
+export function errorMenssage(reply:FastifyReply, status: number, text: string ){
+  return reply.status(status).send({
+    "message": text ,
+    "status": status
+}) 
 }

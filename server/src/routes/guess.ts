@@ -12,5 +12,5 @@ export async function guessRoutes(fastify: FastifyInstance) {
     return { count }
   })
 
-  fastify.post('/pools/:poolId/games/guesses',{onRequest: [authenticate]},newGuess)
+  fastify.post('/room/:roomId/games/guesses',{onRequest: [authenticate]},newGuess)
 }

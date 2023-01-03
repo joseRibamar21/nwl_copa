@@ -2,7 +2,7 @@ import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
 
-import { poolRoutes } from './routes/pools'
+import { roomRoutes } from './routes/room'
 import { userRoutes } from './routes/user'
 import { guessRoutes } from './routes/guess'
 import { authRoutes } from './routes/auth'
@@ -21,7 +21,7 @@ async function bootstrap() {
     secret: 'nlwcopa'
   })
 
-  fastify.register(poolRoutes)
+  fastify.register(roomRoutes)
   fastify.register(userRoutes)
   fastify.register(guessRoutes)
   fastify.register(authRoutes)

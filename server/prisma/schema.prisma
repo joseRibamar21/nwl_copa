@@ -1,9 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-}
-
-generator erd {
-  provider = "prisma-erd-generator"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -12,7 +8,11 @@ datasource db {
   relationMode = "prisma"
 }
 
-model Pool {
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
+model Room {
   id           String        @id @default(cuid())
   title        String
   urlImage     String?
@@ -25,6 +25,7 @@ model Pool {
   owner        User?         @relation(fields: [ownerId], references: [id])
   participants Participant[]
   Game         Game[]
+  ranking      Ranking[]
 
   @@index([ownerId])
 }
@@ -32,14 +33,14 @@ model Pool {
 model Participant {
   id      String    @id @default(cuid())
   userId  String
-  poolId  String
+  roomId  String
   user    User      @relation(fields: [userId], references: [id])
-  pool    Pool      @relation(fields: [poolId], references: [id])
+  room    Room      @relation(fields: [roomId], references: [id])
   guesses Guess[]
-  Ranking Ranking[]
+  ranking Ranking[]
 
-  @@unique([userId, poolId])
-  @@index([poolId])
+  @@unique([userId, roomId])
+  @@index([roomId])
 }
 
 model User {
@@ -50,7 +51,7 @@ model User {
   avatarUrl        String?
   password         String?
   createdAt        DateTime      @default(now())
-  ownPools         Pool[]
+  ownRooms         Room[]
   participantingAt Participant[]
 }
 
@@ -61,25 +62,31 @@ model Game {
   secondTeam       String
   firstTeamPoints  Int?
   secondTeamPoints Int?
-  poolId           String
+  roomId           String
   guesses          Guess[]
-  pool             Pool     @relation(fields: [poolId], references: [id])
+  room             Room     @relation(fields: [roomId], references: [id])
 
-  @@index([poolId])
+  @@index([roomId])
 }
 
 model Ranking {
   id            String      @id @default(cuid())
-  participant   Participant @relation(fields: [participantId], references: [id])
   participantId String
+  gameId        String
+  roomId        String
+  participant   Participant @relation(fields: [participantId], references: [id])
+  room          Room        @relation(fields: [roomId], references: [id])
+  points        Int?
 
   @@index([participantId])
+  @@index([roomId])
 }
 
 model Guess {
   id               String      @id @default(cuid())
   firstTeamPoints  Int
   secondTeamPoints Int
+  points           Int?
   createdAt        DateTime    @default(now())
   gameId           String
   participantId    String

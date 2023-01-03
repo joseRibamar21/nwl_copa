@@ -6,9 +6,8 @@ import { ListPools } from "../../components/ListPools";
 import { api } from "../../services/api";
 
 import NavBar from "../../components/NavBar";
-import NewPoolButton from "../../components/NewPoolButton";
 import { toast } from "react-toastify";
-import JoinPoolButton from "../../components/JoinPoolButton";
+import Link from "next/link";
 
 export default function Home() {
   const [mePools, setMePools] = useState([])
@@ -16,11 +15,11 @@ export default function Home() {
 
   async function loadPools() {
     axios.all([
-      await api.get('pools/me'),
-      await api.get('pools')
+      await api.get('room/me'),
+      await api.get('room')
     ]).then(axios.spread((data1, data2) => {
-      setMePools(data1.data['pools'])
-      setPools(data2.data['pools'])
+      setMePools(data1.data['rooms'])
+      setPools(data2.data['rooms'])
     })).catch(e=>{
       toast("Erro ao carregar salas", {
         type:'error'
@@ -41,10 +40,9 @@ export default function Home() {
         <div className="p-3">
           <div className="flex flex-row-reverse gap-4">
             <div className="w-48 py-4 ">
-            <JoinPoolButton/>
+            <Link href='/rooms/new'><ElevatedButton>Criar Bolão</ElevatedButton></Link>
             </div>
             <div className="w-48 py-4 ">
-              <NewPoolButton />
             </div>
           </div>
 

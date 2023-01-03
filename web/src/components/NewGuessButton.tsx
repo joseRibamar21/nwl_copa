@@ -29,11 +29,16 @@ export default function NewGessButton({ idPool, gameId, refresh, title }: NewGes
     event.preventDefault();
     
     try {
-      await api.post("pools/"+idPool+"/games/guesses", {
+      const data = await api.post("room/"+idPool+"/games/guesses", {
         gameId,
         firstTeamPoints: Number.parseInt(dataForm.firstTeam),
         secondTeamPoints: Number.parseInt(dataForm.secondTeam)
       })
+
+      if(data.status !== 201){
+        throw "Error"
+      }
+
       setDataForm({
         firstTeam: "",
         secondTeam: "",
@@ -47,8 +52,6 @@ export default function NewGessButton({ idPool, gameId, refresh, title }: NewGes
     }
   }
 
-  useState
-
   return <Dialog.Root open={openDialog}>
     <Dialog.Trigger className='flex flex-row gap-2 items-center font-bold' onClick={() => setOpenDialog(true)}>
       Adicionar palpite
@@ -58,7 +61,7 @@ export default function NewGessButton({ idPool, gameId, refresh, title }: NewGes
       <Dialog.Overlay className="bg-black/80 inset-0 fixed">
         <Dialog.Content className="fixed bg-background py-8 px-10 text-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg w-[480px] shadow-lg shadow-black/25">
           <Dialog.Title className="flex flex-row justify-between text-2xl text-white font-black">
-            <h2>{title}</h2>
+            {title}
             <Dialog.Close onClick={() => {
               setDataForm({
                 firstTeam: "",

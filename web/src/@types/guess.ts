@@ -5,4 +5,5 @@ export type Guess = {
   firstTeamPoints: number
   secondTeamPoints: number
   participant: Participant
+  points: number
 }

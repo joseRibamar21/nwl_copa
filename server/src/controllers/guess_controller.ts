@@ -4,7 +4,7 @@ import { prisma } from "../lib/prisma"
 
 async function newGuess(request: FastifyRequest, reply: FastifyReply) {
     const createGuessParams = z.object({
-        poolId: z.string()
+        roomId: z.string()
     })
 
     const createGuessBody = z.object({
@@ -13,13 +13,13 @@ async function newGuess(request: FastifyRequest, reply: FastifyReply) {
         secondTeamPoints: z.number(),
     })
 
-    const { poolId } = createGuessParams.parse(request.params)
+    const { roomId } = createGuessParams.parse(request.params)
     const { gameId, firstTeamPoints, secondTeamPoints } = createGuessBody.parse(request.body)
     const participant = await prisma.participant.findUnique({
         where: {
-            userId_poolId: {
+            userId_roomId: {
                 userId: request.user.sub,
-                poolId,
+                roomId,
             }
         }
     })
@@ -35,8 +35,6 @@ async function newGuess(request: FastifyRequest, reply: FastifyReply) {
             }
         }
     })
-
-    console.log(guess)
 
 
     const game = await prisma.game.findUnique({
@@ -67,7 +65,7 @@ async function newGuess(request: FastifyRequest, reply: FastifyReply) {
         return reply.status(200).send({ message: "Sucess update pool" })
     }
 
-    await prisma.guess.create({
+    const newGess = await prisma.guess.create({
         data: {
             gameId,
             participantId: participant.id,
@@ -76,7 +74,7 @@ async function newGuess(request: FastifyRequest, reply: FastifyReply) {
         }
     })
 
-    return reply.status(201).send()
+    return reply.status(201).send(newGess)
 }
 
 export { newGuess }

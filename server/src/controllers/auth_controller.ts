@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify"
 import { z } from "zod"
 import { prisma } from "../lib/prisma"
 import fetch from 'node-fetch'
-import { hashPassword,comparePassword } from "../helpers/utils";
+import { hashPassword, comparePassword } from "../helpers/utils";
 
 async function authGoogle(request: FastifyRequest, reply: FastifyReply) {
 
@@ -86,18 +86,19 @@ async function createUser(request: FastifyRequest, reply: FastifyReply) {
                 password: await hashPassword(userInfo.password),
             }
         })
-    }else{
-        return {message: "Usuário já cadastrado!"}
+    } else {
+        return { message: "Usuário já cadastrado!" }
     }
-    
+
     const token = await reply.jwtSign({
-        name: user.id,
+        id: user.id,
+        name: user.name,
         avatarUrl: user.avatarUrl,
     }, {
         sub: user.id,
         expiresIn: '7 days',
     })
-    
+
 
     return { token }
 }
@@ -108,41 +109,41 @@ async function auth(request: FastifyRequest, reply: FastifyReply) {
         password: z.string(),
     })
 
-    try{
+    try {
         const userInfo = authBody.parse(request.body)
         const user = await prisma.user.findFirst({
-            where:{
+            where: {
                 email: userInfo.email
             }
         })
 
-        if(!user){
-            return reply.status(404).send({message:"Usuário não encontrado!"})
+        if (!user) {
+            return reply.status(404).send({ message: "Usuário não encontrado!" })
         }
-        
-        if(!await comparePassword(userInfo.password,user.password!)){
-            return reply.status(422).send({message:"Senha incorreta!"})
+
+        if (!await comparePassword(userInfo.password, user.password!)) {
+            return reply.status(422).send({ message: "Senha incorreta!" })
         }
 
         const token = await reply.jwtSign({
+            id: user.id,
             name: user.name,
             avatarUrl: user.avatarUrl,
         }, {
             sub: user.id,
             expiresIn: '7 days',
         })
-        
-    
+
         return { token, user }
 
-    }catch(error){
+    } catch (error) {
         console.log(error)
-        return {message:"Parametros incorretos!"}
+        return { message: "Parametros incorretos!" }
     }
 
 
-    
-   
+
+
 }
 
 export { authGoogle, createUser, auth }
