@@ -20,24 +20,26 @@ model Room {
   createdAt    DateTime      @default(now())
   open         Boolean       @default(false)
   restrict     Boolean       @default(false)
+  password     String?
+  expirated_at DateTime?
+  limit_games  Int           @default(5)
   description  String?
   ownerId      String?
   owner        User?         @relation(fields: [ownerId], references: [id])
   participants Participant[]
   Game         Game[]
-  ranking      Ranking[]
 
   @@index([ownerId])
 }
 
 model Participant {
-  id      String    @id @default(cuid())
-  userId  String
-  roomId  String
-  user    User      @relation(fields: [userId], references: [id])
-  room    Room      @relation(fields: [roomId], references: [id])
-  guesses Guess[]
-  ranking Ranking[]
+  id          String  @id @default(cuid())
+  userId      String
+  roomId      String
+  totalPoints Int     @default(0)
+  user        User    @relation(fields: [userId], references: [id])
+  room        Room    @relation(fields: [roomId], references: [id])
+  guesses     Guess[]
 
   @@unique([userId, roomId])
   @@index([roomId])
@@ -66,19 +68,6 @@ model Game {
   guesses          Guess[]
   room             Room     @relation(fields: [roomId], references: [id])
 
-  @@index([roomId])
-}
-
-model Ranking {
-  id            String      @id @default(cuid())
-  participantId String
-  gameId        String
-  roomId        String
-  participant   Participant @relation(fields: [participantId], references: [id])
-  room          Room        @relation(fields: [roomId], references: [id])
-  points        Int?
-
-  @@index([participantId])
   @@index([roomId])
 }
 

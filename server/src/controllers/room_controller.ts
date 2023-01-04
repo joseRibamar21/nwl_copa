@@ -47,7 +47,7 @@ async function meRooms(request: FastifyRequest, reply: FastifyReply) {
 async function openRooms(request: FastifyRequest, reply: FastifyReply) {
     const rooms = await prisma.room.findMany({
         where: {
-            open: true,
+            restrict: false,
         },
 
         include: {
@@ -103,6 +103,7 @@ async function oneRoom(request: FastifyRequest, reply: FastifyReply) {
             participants: {
                 select: {
                     id: true,
+                    totalPoints: true,
                     user: {
                         select: {
                             name: true,
@@ -110,6 +111,9 @@ async function oneRoom(request: FastifyRequest, reply: FastifyReply) {
                         }
                     },
                 },
+                orderBy:{
+                    totalPoints: "desc"
+                }
             },
             owner: {
                 select: {
@@ -117,27 +121,10 @@ async function oneRoom(request: FastifyRequest, reply: FastifyReply) {
                     name: true,
                 }
             },
-            ranking: {
-                select: {
-                    points: true,
-                    participant: {
-                        select: {
-                            id: true,
-                            user: {
-                                select: {
-                                    name: true,
-                                    avatarUrl: true
-                                }
-                            },
-
-                        },
-                    }
-                }
-            }
         }
     })
 
-    return { room }
+    return { room: {...room,"isAdm": room?.ownerId == request.user.sub }}
 
 }
 
@@ -145,13 +132,12 @@ async function createRoom(request: FastifyRequest, reply: FastifyReply) {
     const createPoolBody = z.object({
         title: z.string(),
         urlImage: z.string(),
-        open: z.boolean()
+        password: z.string()
     })
-    const { title, urlImage, open } = createPoolBody.parse(request.body)
+    const { title, urlImage, password } = createPoolBody.parse(request.body)
 
     const generateCode = new ShortUniqueId({ length: 6 })
     const code = String(generateCode()).toUpperCase()
-    console.log(title)
     try {
         await request.jwtVerify()
 
@@ -160,7 +146,9 @@ async function createRoom(request: FastifyRequest, reply: FastifyReply) {
                 title,
                 code,
                 urlImage,
-                open,
+                open: false,
+                password,
+                restrict: password.length!=0,
                 ownerId: request.user.sub,
                 participants: {
                     create: {
@@ -231,4 +219,33 @@ async function joinRoom(request: FastifyRequest, reply: FastifyReply) {
 
 }
 
-export { meRooms, openRooms, oneRoom, createRoom, joinRoom }
+async function startGameRoom(request: FastifyRequest, reply: FastifyReply) {
+    const startGameParams = z.object({
+        roomId: z.string(),
+    })
+    const { roomId } = startGameParams.parse(request.params)
+    const roomData = await prisma.room.findUnique({
+        where:{
+            id: roomId
+        }
+    })
+
+    if(!roomData){
+        return reply.status(404).send({ message: "Sala não encontrada!" })
+    }
+
+    if(roomData.ownerId == request.user.sub ){
+        return reply.status(404).send({ message: "Você não tem permissão para começar o jogo!" })
+    }
+
+    await prisma.room.update({
+        data:{
+            open:false
+        },
+        where:{
+            id: roomId
+        }
+    })    
+}
+
+export { meRooms, openRooms, oneRoom, createRoom, joinRoom, startGameRoom }

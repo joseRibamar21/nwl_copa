@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify"
 import { z } from "zod"
 import { prisma } from "../lib/prisma"
+import { Prisma } from "@prisma/client"
 
 async function newGame(request: FastifyRequest, reply: FastifyReply) {
     const createGameParams = z.object({
@@ -16,17 +17,46 @@ async function newGame(request: FastifyRequest, reply: FastifyReply) {
 
     const { roomId } = createGameParams.parse(request.params)
 
+    const roomData = await prisma.room.findUnique(
+        {
+            where: {
+                id: roomId
+            },
+            include:{
+                _count:{
+                    select:{
+                        Game: true
+                    }
+                }
+            }
+        }
+    )
+
+    
+    if (!roomData) {
+        return reply.status(404).send({ message: "Não foi encontrar a sala" })
+    }
+
+    if(roomData.open){
+        return reply.status(400).send({ message: "O jogo ja iniciou, não é mais permitido criar novas salas!" })
+    }
+
+    console.log(roomData)
+    if (roomData._count.Game >= roomData.limit_games) {
+        return reply.status(400).send({ message: `Sua sala tem um limite de ${roomData.limit_games} jogos!`})
+    }
+
     const gameData = await prisma.game.create({
         data: {
             firstTeam,
             secondTeam,
             roomId,
             date: new Date(date).toISOString()
-        }
+        },
     })
 
     if (!gameData) {
-        return reply.status(400).send({ menssage: "Não foi possivel criar o jogo" })
+        return reply.status(400).send({ message: "Não foi possivel criar o jogo" })
     }
 
     return {
@@ -45,6 +75,9 @@ async function games(request: FastifyRequest, reply: FastifyReply) {
     const gameData = await prisma.game.findMany({
         where: {
             roomId,
+        },
+        orderBy:{
+            date:'desc'
         },
         include: {
             guesses: {
@@ -69,7 +102,7 @@ async function games(request: FastifyRequest, reply: FastifyReply) {
     })
 
     if (!gameData) {
-        return reply.status(400).send({ menssage: "Não foi possivel criar o jogo" })
+        return reply.status(400).send({ message: "Não foi possivel criar o jogo" })
     }
 
     return {
@@ -135,10 +168,64 @@ async function closeGame(request: FastifyRequest, reply: FastifyReply) {
 
     await prisma.$queryRaw`
         update Guess g set g.points = 1 where 1=1
-        and g.id = ${gameId}
-        and (firstTeamPoints = ${firstTeamPoints} and secondTeamPoints != ${secondTeamPoints} ) 
-        or (secondTeamPoints = ${secondTeamPoints} and firstTeamPoints != ${firstTeamPoints} )
+        and g.gameId = ${gameId}
+        and (g.firstTeamPoints = ${firstTeamPoints} and g.secondTeamPoints != ${secondTeamPoints} ) 
+        or (g.secondTeamPoints = ${secondTeamPoints} and g.firstTeamPoints != ${firstTeamPoints} )
     `
+
+    ///    GANHADORES 3 PONTOS
+
+    try {
+        let ganhadore3pontos: any = await prisma.$queryRaw`select p.id from Participant p 
+        inner join Guess g on g.participantId = p.id 
+        where 1=1
+        and g.gameId = ${gameId}
+        and (g.firstTeamPoints = ${firstTeamPoints} and g.secondTeamPoints = ${secondTeamPoints});`
+
+        const listGanhadore3pontos = ganhadore3pontos.map((e: { id: any }) => e.id)
+
+        console.log(listGanhadore3pontos)
+
+        await prisma.$executeRaw`UPDATE Participant 
+        SET totalPoints = totalPoints + 3 
+        WHERE 1=1 
+        AND id IN (${Prisma.join(listGanhadore3pontos)})
+        `
+    } catch (error) {
+        console.error(error)
+    }
+
+    ///    GANHADORES 1 PONTOS
+
+    try{
+        let ganhadore1pontos: any = await prisma.$queryRaw`select p.id from Participant p 
+        inner join Guess g on g.participantId = p.id 
+        where 1=1
+        and g.gameId = ${gameId}
+        and (g.firstTeamPoints = ${firstTeamPoints} and g.secondTeamPoints != ${secondTeamPoints} ) 
+        or (g.secondTeamPoints = ${secondTeamPoints} and g.firstTeamPoints != ${firstTeamPoints} )`
+
+        const listGanhadore1pontos = ganhadore1pontos.map((e: { id: any }) => e.id)
+
+        console.log(listGanhadore1pontos)
+
+        await prisma.$executeRaw`UPDATE Participant 
+        SET totalPoints = totalPoints + 1
+        WHERE 1=1 
+        AND id IN (${Prisma.join(listGanhadore1pontos)})
+        `
+    } catch(err){
+        console.error(err)
+    }
+
+    /*  await prisma.$queryRaw`
+     update Participant
+     set totalPoints = totalPoints + 1
+     where 1=1
+     and Participant.id in (
+     )
+     ` */
+
     return reply.status(200).send("Jogo Fechado!")
 }
 

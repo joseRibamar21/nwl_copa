@@ -8,12 +8,12 @@ import ElevatedButton from './ElevatedButton';
 import Input from './Input';
 import { newGameService } from '../services/games_services';
 
-interface NewGameButtonPops{
-  idPool: string
+interface StartGameRoomButtonPops{
+  roomId: string
   refresh?():void
 }
 
-export default function NewGameButton({idPool,refresh}:NewGameButtonPops) {
+export default function StartGameRoomButton({roomId,refresh}:StartGameRoomButtonPops) {
   const [openDialog, setOpenDialog] = useState<boolean>(false)
 
   const [dataForm, setDataForm] = useState({
@@ -27,7 +27,7 @@ export default function NewGameButton({idPool,refresh}:NewGameButtonPops) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     console.log(dataForm)
     event.preventDefault();
-    await newGameService({roomId:idPool,data: dataForm})
+    await newGameService({roomId:roomId,data: dataForm})
     setDataForm({
       firstTeam: "",
       secondTeam: "",

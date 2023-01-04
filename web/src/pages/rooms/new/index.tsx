@@ -12,7 +12,9 @@ export default function NewRoom() {
 
   const [title, setTitle] = useState<string>('')
   const [urlImage, setUrlImage] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
   const [check, setCheck] = useState<boolean>(true)
+  
 
   const router = useRouter()
 
@@ -22,11 +24,14 @@ export default function NewRoom() {
   function onChangeUrlImage(e: React.FormEvent<HTMLInputElement>) {
     setUrlImage(e.currentTarget.value)
   };
+  function onChangePassword(e: React.FormEvent<HTMLInputElement>) {
+    setPassword(e.currentTarget.value)
+  };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      const room = await newRoomService({title,urlImage,open:check});
+      const room = await newRoomService({title,urlImage,password});
       router.replace('/rooms/'+ room.id)
     } catch (error) {
       toast("Erro ao cadastrar sala!", { type: "error" })
@@ -37,7 +42,7 @@ export default function NewRoom() {
   return (
     <>
       <div className="flex justify-center items-center content-center ">
-        <form onSubmit={handleSubmit} className='mt-8 flex flex-col gap-4 w-[100%] max-w-[600px]'>
+        <form onSubmit={handleSubmit} className='mt-8 flex flex-col gap-4 w-[100%] max-w-[600px] p-3'>
           <h1>Criar Sala</h1>
 
           <Input
@@ -55,6 +60,12 @@ export default function NewRoom() {
             required
             onChange={onChangeUrlImage}
             className='w-[100%]' />
+          <Input
+            type='password'
+            placeholder='Senha da sala(opcional)'
+            value={password}
+            onChange={onChangePassword}
+            className='w-[100%]'/>
           <div className='flex flex-row'>
             <div onClick={() => { setCheck(!check) }}>
               <CheckBox title='Sala Privada?' />

@@ -1,5 +1,7 @@
-import UserI from "./user"
+import { User } from "./user"
 
 export type Participant = {
-  user: UserI
+  id: string,
+  totalPoints: string,
+  user: User
 }

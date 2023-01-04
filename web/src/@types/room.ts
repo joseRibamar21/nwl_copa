@@ -12,10 +12,11 @@ export type Room = {
   }
   participants: {
     id: string,
+    totalPoints: number
     user: {
       name: string
       avatarUrl: string
     }
   }[]
-
+  isAdm: boolean
 }

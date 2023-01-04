@@ -17,7 +17,7 @@ export default function ListGamesPool({ poolId, isOwner = false, games, refresh 
     <div className="flex flex-col pt-12 gap-5">
       <div className="flex flex-row justify-between">
         <h1>Jogos</h1>
-        {isOwner ?<NewGameButton idPool={poolId} refresh={() => refresh} />:<></>}
+        {isOwner ?<NewGameButton idPool={poolId} refresh={refresh} />:<></>}
       </div>
       {games?.map(e => {
         var closed = Date.parse(e.date) < Date.now() || e.firstTeamPoints!= null

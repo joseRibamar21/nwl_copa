@@ -18,7 +18,7 @@ export default function OneRoom() {
   const [pool, setPool] = useState({} as Room)
   const [games, setGames] = useState([] as Game[])
   const [loading, setLoading] = useState(true)
-  const {user} = useAuth()
+  const { user } = useAuth()
   const id = query.id
 
   const reloading = async () => {
@@ -48,8 +48,6 @@ export default function OneRoom() {
           setGames(gamesData)
         }
         setLoading(false)
-        console.log("PoolIDOwner: " + pool.owner?.id)
-        console.log("userId: " + user?.id)
       } catch (error) {
       }
     }
@@ -87,7 +85,7 @@ export default function OneRoom() {
           {
             pool.owner?.id == user?.id ?
               <div className="flex flex-row-reverse">
-                
+
               </div>
               : <></>
           }
@@ -97,12 +95,15 @@ export default function OneRoom() {
               {pool.participants?.map((e, i) => {
                 return <div key={i} className="flex flex-row rounded-2xl p-3 bg-gradient-to-r from-blue-700 to-green-700 items-center gap-4 w-">
                   <img src={e.user.avatarUrl} width={60} height={60} alt={e.user.name} className="rounded-full w-16 h-16 object-cover" />
-                  <span className="font-bold pr-12">{e.user.name}</span>
+                  <div className="flex flex-col">
+                    <span className="font-bold pr-12">{e.user.name}</span>
+                    <span className="font-bold pr-12">Pontos: {e.totalPoints}</span>
+                  </div>
                 </div>
               })}
             </div>
           </div>
-          <ListGamesPool poolId={pool.id} games={games} refresh={reloading}  isOwner={pool.owner?.id == user?.id} />
+          <ListGamesPool poolId={pool.id} games={games} refresh={reloading} isOwner={pool.isAdm} />
         </div>
       </>
     )
@@ -111,7 +112,7 @@ export default function OneRoom() {
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { ['nextauth.token']: token } = parseCookies(ctx)
-  
+
   if (!token) {
     return {
       redirect: {

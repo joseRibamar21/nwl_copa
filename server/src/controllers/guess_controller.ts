@@ -21,12 +21,20 @@ async function newGuess(request: FastifyRequest, reply: FastifyReply) {
                 userId: request.user.sub,
                 roomId,
             }
+        },
+        include:{
+            room: true
         }
     })
+
     if (!participant) {
         return reply.status(400).send({ message: "You have not entered this pool yet" })
     }
 
+    if(!participant.room.open){
+        return reply.status(400).send({ message: "O jogo ainda não começou!" })
+    }
+    
     const guess = await prisma.guess.findUnique({
         where: {
             participantId_gameId: {
