@@ -3,6 +3,12 @@ export type Room = {
   code: string
   title: string
   urlImage: string
+  step: number
+  restrict: boolean
+  priceInscription: number
+  amount: number
+  limit_games: number
+  description: string
   _count: {
     participants: number
   }

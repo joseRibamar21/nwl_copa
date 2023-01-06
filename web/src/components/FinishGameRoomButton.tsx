@@ -1,20 +1,20 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { CheckCircle, PlusCircle, X } from 'phosphor-react';
-import { FormEvent, useState } from 'react';
+import { CheckCircle, X } from 'phosphor-react';
+import { useState } from 'react';
 
 import ElevatedButton from './ElevatedButton';
-import { startGameRoomService } from '../services/rooms_services';
+import { openGameRoomService } from '../services/rooms_services';
 
-interface StartGameRoomButtonPops{
+interface OpenGameRoomButtonPops{
   roomId: string
   refresh?():void
 }
 
-export default function StartGameRoomButton({roomId,refresh}:StartGameRoomButtonPops) {
+export default function OpenGameRoomButton({roomId,refresh}:OpenGameRoomButtonPops) {
   const [openDialog, setOpenDialog] = useState<boolean>(false)
 
   async function handleClick() {
-    await startGameRoomService(roomId)
+    await openGameRoomService(roomId)
     setOpenDialog(false)
     refresh? refresh(): null
   }
@@ -22,7 +22,7 @@ export default function StartGameRoomButton({roomId,refresh}:StartGameRoomButton
   return <Dialog.Root open={openDialog}>
     <Dialog.Trigger className='' onClick={() => setOpenDialog(true)}>
       <ElevatedButton theme='SECUNDARY'>
-        <span>Inicar Jogo</span>
+        <span>Abrir Jogo</span>
         <CheckCircle size={32} />
       </ElevatedButton>
     </Dialog.Trigger>
@@ -30,7 +30,7 @@ export default function StartGameRoomButton({roomId,refresh}:StartGameRoomButton
       <Dialog.Overlay className="bg-black/80 inset-0 fixed">
         <Dialog.Content className="fixed bg-background py-8 px-10 text-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg w-[480px] shadow-lg shadow-black/25">
           <Dialog.Title className="flex flex-row justify-between text-2xl text-white font-black">
-            Deseja começar o jogo?
+          Abrir Jogo para o público?
             <Dialog.Close onClick={() =>{
               
               setOpenDialog(false)
@@ -44,7 +44,7 @@ export default function StartGameRoomButton({roomId,refresh}:StartGameRoomButton
               Agora não
             </ElevatedButton>
             <ElevatedButton onClick={()=>{handleClick()}}>
-              Começar Jogo!
+              Abrir para o público!
             </ElevatedButton>
           </div>
 

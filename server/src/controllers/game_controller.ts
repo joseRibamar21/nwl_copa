@@ -31,14 +31,14 @@ async function newGame(request: FastifyRequest, reply: FastifyReply) {
             }
         }
     )
-
+    
     
     if (!roomData) {
         return reply.status(404).send({ message: "Não foi encontrar a sala" })
     }
-
-    if(roomData.open){
-        return reply.status(400).send({ message: "O jogo ja iniciou, não é mais permitido criar novas salas!" })
+    
+    if(roomData.step != 0){
+        return reply.status(400).send({ message: "Você nao pode voltar etapas!" })
     }
 
     console.log(roomData)
@@ -123,19 +123,29 @@ async function closeGame(request: FastifyRequest, reply: FastifyReply) {
     const { firstTeamPoints, secondTeamPoints } = closeGameBody.parse(request.body)
     const { gameId } = closeGameparams.parse(request.params)
 
-    const game = await prisma.game.findFirstOrThrow(
+    const game = await prisma.game.findFirst(
         {
             where: {
                 id: gameId,
                 room: {
                     owner: {
                         id: request.user.sub
-                    }
+                    },
                 }
+            },
+            include:{
+                room: true
             }
         }
     )
-    console.log(game)
+
+    if(!game){
+        return reply.status(404).send({ message: "Jogo não existe!" })
+    }
+
+    if(game.room.step != 2){
+        return reply.status(400).send({ message: "Feche a sala para poder postar os resultados!" })
+    }
 
     await prisma.game.update(
         {
@@ -217,14 +227,6 @@ async function closeGame(request: FastifyRequest, reply: FastifyReply) {
     } catch(err){
         console.error(err)
     }
-
-    /*  await prisma.$queryRaw`
-     update Participant
-     set totalPoints = totalPoints + 1
-     where 1=1
-     and Participant.id in (
-     )
-     ` */
 
     return reply.status(200).send("Jogo Fechado!")
 }

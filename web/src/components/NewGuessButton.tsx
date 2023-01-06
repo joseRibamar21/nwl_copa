@@ -6,6 +6,7 @@ import { api } from '../services/api';
 
 import ElevatedButton from './ElevatedButton';
 import Input from './Input';
+import { newGuessService } from '../services/guess_service';
 
 interface NewGessButtonPops {
   idPool: string
@@ -27,29 +28,21 @@ export default function NewGessButton({ idPool, gameId, refresh, title }: NewGes
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     console.log(dataForm)
     event.preventDefault();
-    
-    try {
-      const data = await api.post("room/"+idPool+"/games/guesses", {
+
+    await newGuessService({
+      idRoom: idPool, data: {
         gameId,
         firstTeamPoints: Number.parseInt(dataForm.firstTeam),
         secondTeamPoints: Number.parseInt(dataForm.secondTeam)
-      })
-
-      if(data.status !== 201){
-        throw "Error"
       }
+    })
 
-      setDataForm({
-        firstTeam: "",
-        secondTeam: "",
-      })
-      refresh? refresh(): null
-      setOpenDialog(false)
-      toast("Palpite cadastrado com sucesso!",{type:"success"})
-    } catch (error) {
-      toast("Erro ao cadastrar palpite!",{type:"error"})
-      console.log(error)
-    }
+    setDataForm({
+      firstTeam: "",
+      secondTeam: "",
+    })
+    refresh ? refresh() : null
+    setOpenDialog(false)
   }
 
   return <Dialog.Root open={openDialog}>

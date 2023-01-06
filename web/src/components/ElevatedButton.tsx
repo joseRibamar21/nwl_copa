@@ -4,7 +4,7 @@ interface ElevatedButtonProps extends DetailedHTMLProps<ButtonHTMLAttributes<HTM
   children: React.ReactNode
   handleClick?: Function
   disable?: boolean
-  theme?: "PRYMARY" | "SECUNDARY"
+  theme?: "PRYMARY" | "SECUNDARY" | "CLOSE"
 }
 
 export default function ElevatedButton({ children, handleClick, disable = false, theme = "PRYMARY", ...props }: ElevatedButtonProps) {
@@ -12,6 +12,10 @@ export default function ElevatedButton({ children, handleClick, disable = false,
 
   if (theme === "SECUNDARY") {
     bg = "bg-blue-700";
+  }
+
+  if (theme === "CLOSE") {
+    bg = "bg-red-700";
   }
 
   return (

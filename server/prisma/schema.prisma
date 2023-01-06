@@ -13,21 +13,24 @@ generator erd {
 }
 
 model Room {
-  id           String        @id @default(cuid())
-  title        String
-  urlImage     String?
-  code         String        @unique
-  createdAt    DateTime      @default(now())
-  open         Boolean       @default(false)
-  restrict     Boolean       @default(false)
-  password     String?
-  expirated_at DateTime?
-  limit_games  Int           @default(5)
-  description  String?
-  ownerId      String?
-  owner        User?         @relation(fields: [ownerId], references: [id])
-  participants Participant[]
-  Game         Game[]
+  id               String        @id @default(cuid())
+  title            String
+  urlImage         String?
+  code             String        @unique
+  createdAt        DateTime      @default(now())
+  deletedAt        DateTime?
+  step             Int           @default(0)
+  restrict         Boolean       @default(false)
+  priceInscription Int
+  password         String?
+  expirated_at     DateTime?
+  amount           Int           @default(0)
+  limit_games      Int           @default(5)
+  description      String?
+  ownerId          String?
+  owner            User?         @relation(fields: [ownerId], references: [id])
+  participants     Participant[]
+  Game             Game[]
 
   @@index([ownerId])
 }
@@ -52,6 +55,7 @@ model User {
   googleId         String?       @unique
   avatarUrl        String?
   password         String?
+  wallet           Int           @default(0)
   createdAt        DateTime      @default(now())
   ownRooms         Room[]
   participantingAt Participant[]

@@ -28,6 +28,10 @@ export default function OneRoom() {
         console.log(gamesData)
         setGames(gamesData)
       }
+      const room = await roomSpecificService(id as string)
+      if (room) {
+        setPool(room)
+      }
     } catch (error) {
     }
   }
@@ -65,6 +69,27 @@ export default function OneRoom() {
     </div>
   }
 
+  function stepText(step:number){
+/*  0: Construção da sala (build)
+    1: Jogo aberto para publico (Open)
+    2: Jogo finalizado para entrada de resultados (run Game)
+    3: Encerrar Sala e distribuir valores (finished) */
+
+    if(step == 0){
+      return "Em construção"
+    }
+    if(step == 1){
+      return "Aberto"
+    }
+    if(step == 2){
+      return "Em andamento"
+    }
+    if(step == 3){
+      return "Finalizado"
+    }
+    return "Error"
+  }
+
   if (pool) {
     return (
       <>
@@ -74,21 +99,17 @@ export default function OneRoom() {
           </title>
         </Head>
 
-        <img src={pool.urlImage} alt={pool.urlImage} height={400} className="w-[100%] h-72 object-cover" />
+        <img src={pool.urlImage} alt={pool.urlImage} height={400} className="w-[100%] h-96 object-cover" />
         <div className="flex flex-col flex-wrap p-6">
           <div className="flex flex-row gap-4 flex-wrap">
             <div className="flex flex-col p-3">
               <h1>{pool.title}</h1>
               <span>Code: {pool.code}</span>
+              <span>Valor da inscrição: {pool.priceInscription}</span>
+              <span>Valor acumulado: {pool.amount}</span>
+              <h2>Status da sala: {stepText(pool.step)}</h2>
             </div>
           </div>
-          {
-            pool.owner?.id == user?.id ?
-              <div className="flex flex-row-reverse">
-
-              </div>
-              : <></>
-          }
           <div className="flex flex-col pt-12 gap-5">
             <h1>Participantes</h1>
             <div className=" flex gap-6 flex-wrap">
@@ -103,7 +124,7 @@ export default function OneRoom() {
               })}
             </div>
           </div>
-          <ListGamesPool poolId={pool.id} games={games} refresh={reloading} isOwner={pool.isAdm} />
+          <ListGamesPool poolId={pool.id} games={games} refresh={reloading} isOwner={pool.isAdm} step={pool.step} />
         </div>
       </>
     )

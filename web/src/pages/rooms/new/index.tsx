@@ -13,6 +13,7 @@ export default function NewRoom() {
   const [title, setTitle] = useState<string>('')
   const [urlImage, setUrlImage] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [price, setPrice] = useState<number>(5)
   const [check, setCheck] = useState<boolean>(true)
   
 
@@ -31,7 +32,7 @@ export default function NewRoom() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      const room = await newRoomService({title,urlImage,password});
+      const room = await newRoomService({title,urlImage,password,price});
       router.replace('/rooms/'+ room.id)
     } catch (error) {
       toast("Erro ao cadastrar sala!", { type: "error" })
@@ -65,6 +66,17 @@ export default function NewRoom() {
             placeholder='Senha da sala(opcional)'
             value={password}
             onChange={onChangePassword}
+            className='w-[100%]'/>
+          <label htmlFor="price">Preço da Inscrição: {price}</label>
+          <Input
+            id="price"
+            type='range'
+            
+            min={5}
+            max={5001}
+            step={5} 
+            value={price}
+            onChange={e=>setPrice(e.currentTarget.valueAsNumber)}
             className='w-[100%]'/>
           <div className='flex flex-row'>
             <div onClick={() => { setCheck(!check) }}>
