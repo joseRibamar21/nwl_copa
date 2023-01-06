@@ -52,7 +52,7 @@ export async function startGameRoomService(roomId: string) {
 export async function finishGameRoomService(roomId: string) {
   try {
     await api.post(`/room/${roomId}/finalize`)
-    toast("Jogo Iniciado com sucesso!", {type:"success"})
+    toast("Jogo encerrado com sucesso!", {type:"success"})
   } catch (error:any) { 
     toast(String(error['response']['data']['message']), { type: "error" })
   }

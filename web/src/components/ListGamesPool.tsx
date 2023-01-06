@@ -1,6 +1,7 @@
 import { Game } from "../@types/game"
 import { dateFormater } from "../utils/dataFormater"
 import CloseGameButton from "./CloseGameButton"
+import FinishGameRoomButton from "./FinishGameRoomButton"
 import ListGuessesGame from "./ItemGuessesGame"
 import NewGameButton from "./NewGameButton"
 import NewGessButton from "./NewGuessButton"
@@ -21,6 +22,7 @@ export default function ListGamesPool({ poolId, isOwner = false, games, refresh 
       <div className="flex flex-row justify-between">
         <h1>Jogos</h1>
         <div className="flex flex-row gap-3">
+          {isOwner && step == 2 ?<FinishGameRoomButton roomId={poolId} refresh={refresh} />:<></>}
           {isOwner && step == 1 ?<StartGameRoomButton roomId={poolId} refresh={refresh} />:<></>}
           {isOwner && step == 0 ?<OpenGameRoomButton roomId={poolId} refresh={refresh} />:<></>}
           {isOwner && step == 0 ?<NewGameButton idPool={poolId} refresh={refresh} />:<></>}

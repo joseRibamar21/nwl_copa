@@ -3,18 +3,18 @@ import { CheckCircle, X } from 'phosphor-react';
 import { useState } from 'react';
 
 import ElevatedButton from './ElevatedButton';
-import { openGameRoomService } from '../services/rooms_services';
+import { finishGameRoomService } from '../services/rooms_services';
 
-interface OpenGameRoomButtonPops{
+interface FinishGameRoomButtonPops{
   roomId: string
   refresh?():void
 }
 
-export default function OpenGameRoomButton({roomId,refresh}:OpenGameRoomButtonPops) {
+export default function FinishGameRoomButton({roomId,refresh}:FinishGameRoomButtonPops) {
   const [openDialog, setOpenDialog] = useState<boolean>(false)
 
   async function handleClick() {
-    await openGameRoomService(roomId)
+    await finishGameRoomService(roomId)
     setOpenDialog(false)
     refresh? refresh(): null
   }
@@ -22,7 +22,7 @@ export default function OpenGameRoomButton({roomId,refresh}:OpenGameRoomButtonPo
   return <Dialog.Root open={openDialog}>
     <Dialog.Trigger className='' onClick={() => setOpenDialog(true)}>
       <ElevatedButton theme='SECUNDARY'>
-        <span>Abrir Jogo</span>
+        <span>Encerrar Sala</span>
         <CheckCircle size={32} />
       </ElevatedButton>
     </Dialog.Trigger>
@@ -30,7 +30,7 @@ export default function OpenGameRoomButton({roomId,refresh}:OpenGameRoomButtonPo
       <Dialog.Overlay className="bg-black/80 inset-0 fixed">
         <Dialog.Content className="fixed bg-background py-8 px-10 text-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg w-[480px] shadow-lg shadow-black/25">
           <Dialog.Title className="flex flex-row justify-between text-2xl text-white font-black">
-          Abrir Jogo para o público?
+          Deseja encerrar a sala?
             <Dialog.Close onClick={() =>{
               
               setOpenDialog(false)
@@ -44,7 +44,7 @@ export default function OpenGameRoomButton({roomId,refresh}:OpenGameRoomButtonPo
               Agora não
             </ElevatedButton>
             <ElevatedButton onClick={()=>{handleClick()}}>
-              Abrir para o público!
+              Encerrar sala!
             </ElevatedButton>
           </div>
 

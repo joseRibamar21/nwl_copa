@@ -369,6 +369,8 @@ async function finishGameRoom(request: FastifyRequest, reply: FastifyReply) {
         },
     })
 
+    console.log(winners)
+
     let listWinners = [winners[0].userId]
 
     winners.forEach((e,i)=> {
@@ -377,10 +379,14 @@ async function finishGameRoom(request: FastifyRequest, reply: FastifyReply) {
         }
     })
 
+    console.log(listWinners)
+
     let partAmout = Math.round(roomData.amount/listWinners.length)
 
+    console.log(partAmout)
+
     await prisma.$executeRaw`UPDATE User 
-        SET wallet = wallet + partAmout
+        SET wallet = wallet + ${partAmout}
         WHERE 1=1 
         AND id IN (${Prisma.join(listWinners)})`
 
