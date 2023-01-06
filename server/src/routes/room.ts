@@ -1,12 +1,16 @@
 import { FastifyInstance } from "fastify"
 import { authenticate } from "../plugins/authenticate"
-import { createRoom, finishGameRoom, joinRoom, meRooms, oneRoom, openGameRoom, openRooms, startGameRoom } from "../controllers/room_controller"
+import { createRoom, finishGameRoom, joinRoom, meRooms, oneRoom, openGameRoom, openRooms, searchRooms, startGameRoom } from "../controllers/room_controller"
 
 export async function roomRoutes(fastify: FastifyInstance) {
 
   fastify.post('/room',{ onRequest: [authenticate] }, createRoom)
 
-  fastify.get('/room', { onRequest: [authenticate] } ,openRooms)
+  fastify.post('/search',{ onRequest: [authenticate] }, createRoom)
+
+  /* fastify.get('/room', { onRequest: [authenticate] } ,openRooms) */
+
+  fastify.get('/room', searchRooms)
   
   fastify.get('/room/:id', { onRequest: [authenticate] }, oneRoom) 
 

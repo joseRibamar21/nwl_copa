@@ -8,8 +8,9 @@ import Router from 'next/router'
 export interface AuthContextDataProps {
   user: User | null;
   isUserLoading: boolean;
+  refreshUser(): Promise<User | null>
   singIn: (email: string, password: string) => Promise<void>;
-  singOut(): void ;
+  singOut(): void;
 }
 
 interface AuthProviderProps {
@@ -19,7 +20,7 @@ interface AuthProviderProps {
 export const AuthContext = createContext({} as AuthContextDataProps);
 
 export function AuthContextProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User| null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isUserLoading, setIsUserLoading] = useState(false)
   const router = useRouter()
 
@@ -31,8 +32,10 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
         password
       })
       console.log(res)
-      setCookie(undefined,'nextauth.token',res.data.token,{maxAge: 24 * 60 * 60 * 5})
-      setCookie(undefined,'nextauth.user',JSON.stringify(res.data.user),{maxAge: 24 * 60 * 60 * 5})
+      setCookie(undefined, 'nextauth.token', res.data.token, { maxAge: 24 * 60 * 60 * 5 })
+      setCookie(undefined, 'nextauth.user', JSON.stringify(
+        res.data.user
+      ), { maxAge: 24 * 60 * 60 * 5 })
       api.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
       setUser(res.data.user)
       Router.replace('/rooms')
@@ -46,8 +49,8 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
 
   function singOut() {
     try {
-      destroyCookie(undefined,'nextauth.token')
-      destroyCookie(undefined,'nextauth.user')
+      destroyCookie(undefined, 'nextauth.token')
+      destroyCookie(undefined, 'nextauth.user')
       Router.replace('/singOut')
     } catch (error) {
       console.log(error)
@@ -55,16 +58,29 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
     }
   }
 
+  async function refreshUser() {
+    setIsUserLoading(true)
+    const res = await api.get('me')
+    if (res.data.user) {
+      const user = res.data.user as User
+      setUser(user)
+      setIsUserLoading(false)
+      return user
+    }
+    setIsUserLoading(false)
+    return null
+  }
 
-  useEffect(()=>{
+  useEffect(() => {
     const { "nextauth.token": token } = parseCookies()
-    if(token){
+    if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       const { "nextauth.user": userData } = parseCookies()
       const objectUser = JSON.parse(userData)
       console.log(objectUser.user as User)
       setUser(objectUser)
-    }else{
+      refreshUser()
+    } else {
       Router.replace('/')
     }
   }, [])
@@ -73,6 +89,7 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
     <AuthContext.Provider value={{
       singIn,
       singOut,
+      refreshUser,
       isUserLoading,
       user
     }}>

@@ -12,6 +12,8 @@ import { roomSpecificService } from "../../../services/rooms_services";
 import { gamesRoomService } from "../../../services/games_services";
 import { GetServerSideProps } from "next";
 import { useAuth } from "../../../hooks/useAuth";
+import { priceFormater } from "../../../utils/priceFormater";
+import JoinRoomButton from "../../../components/JoinRoomButton";
 
 export default function OneRoom() {
   const { query } = useRouter()
@@ -105,9 +107,10 @@ export default function OneRoom() {
             <div className="flex flex-col p-3">
               <h1>{pool.title}</h1>
               <span>Code: {pool.code}</span>
-              <span>Valor da inscrição: {pool.priceInscription}</span>
-              <span>Valor acumulado: {pool.amount}</span>
+              <span>Valor da inscrição: {priceFormater(pool.priceInscription)}</span>
+              <span>Valor acumulado: {priceFormater(pool.amount)}</span>
               <h2>Status da sala: {stepText(pool.step)}</h2>
+              {pool.iAmParticipating? <p>participando</p>:<JoinRoomButton code={pool.code}  name={pool.title} price={pool.priceInscription} refresh={reloading}/>}
             </div>
           </div>
           <div className="flex flex-col pt-12 gap-5">

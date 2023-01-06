@@ -2,6 +2,7 @@ export interface UserI {
   name: string;
   email: string;
   avatarUrl: string;
+  wallet: number
 }
 
 export type User = {
@@ -9,4 +10,5 @@ export type User = {
   name: string;
   email: string;
   avatarUrl: string;
+  wallet: number;
 }

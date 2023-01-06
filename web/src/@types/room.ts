@@ -9,6 +9,7 @@ export type Room = {
   amount: number
   limit_games: number
   description: string
+  iAmParticipating: boolean
   _count: {
     participants: number
   }

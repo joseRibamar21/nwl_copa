@@ -5,6 +5,69 @@ import { prisma } from "../lib/prisma"
 import { errorMenssage } from "../helpers/utils"
 import { Prisma } from "@prisma/client"
 
+async function searchRooms(request: FastifyRequest, reply: FastifyReply) {
+    const getRoomQuery = z.object({
+        name: z.string().optional(),
+        minprice: z.string().optional(),
+        maxprice: z.string().optional(),
+        step: z.string().optional(),
+        skip: z.string().optional(),
+        take: z.string().optional(),
+    })
+
+    const { name, minprice, maxprice, skip, step, take } = getRoomQuery.parse(request.query)
+
+    let takeSQL = take ? parseInt(take): 10
+    let skipSQL = skip ? parseInt(skip): 0
+    let stepSQL = step ? parseInt(step): 1
+    let minpriceSQL = minprice ? parseInt(minprice): 0
+    let maxpriceSQL = maxprice ? parseInt(maxprice): 5000000
+
+    const rooms = await prisma.room.findMany({
+        where:{
+            title:{
+                contains:name,
+            },
+            step: stepSQL,
+            restrict: false,
+            priceInscription:{  
+                gte: minpriceSQL,
+                lte: maxpriceSQL
+            }
+        },
+        skip:skipSQL,
+        take: takeSQL,
+        include: {
+            _count: {
+                select: {
+                    participants: true,
+                }
+            },
+            participants: {
+                select: {
+                    id: true,
+
+                    user: {
+                        select: {
+                            id:true,
+                            name: true,
+                            avatarUrl: true
+                        }
+                    },
+                },
+                take: 4
+            },
+            owner: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
+        },
+    })
+
+    return {rooms}
+}
 
 async function meRooms(request: FastifyRequest, reply: FastifyReply) {
     const room = await prisma.room.findMany({
@@ -104,6 +167,7 @@ async function oneRoom(request: FastifyRequest, reply: FastifyReply) {
                     totalPoints: true,
                     user: {
                         select: {
+                            id:true,
                             name: true,
                             avatarUrl: true
                         }
@@ -122,7 +186,10 @@ async function oneRoom(request: FastifyRequest, reply: FastifyReply) {
         }
     })
 
-    return { room: {...room,"isAdm": room?.ownerId == request.user.sub }}
+    let isIParticipant = room?.participants.findIndex((e)=> e.user.id == request.user.sub)
+
+    console.log(isIParticipant)
+    return { room: {...room,"isAdm": room?.ownerId == request.user.sub,iAmParticipating: isIParticipant!=-1}}
 
 }
 
@@ -150,11 +217,11 @@ async function createRoom(request: FastifyRequest, reply: FastifyReply) {
                 restrict: password.length!=0,
                 ownerId: request.user.sub,
                 priceInscription: price, 
-                participants: {
+                /* participants: {
                     create: {
                         userId: request.user.sub
                     }
-                }
+                } */
             }
         })
         
@@ -268,6 +335,13 @@ async function openGameRoom(request: FastifyRequest, reply: FastifyReply) {
     const roomData = await prisma.room.findUnique({
         where:{
             id: roomId
+        },
+        include:{
+            _count:{
+                select:{
+                    Game:true
+                }
+            }
         }
     })
 
@@ -276,11 +350,15 @@ async function openGameRoom(request: FastifyRequest, reply: FastifyReply) {
     }
     
     if(roomData.ownerId != request.user.sub ){
-        return reply.status(404).send({ message: "Você não tem permissão para começar o jogo!" })
+        return reply.status(400).send({ message: "Você não tem permissão para começar o jogo!" })
     }
 
     if(roomData.step != 0 ){
-        return reply.status(404).send({ message: "Você não pode voltar etapas!" })
+        return reply.status(400).send({ message: "Você não pode voltar etapas!" })
+    }
+
+    if(roomData._count.Game==0){
+        return reply.status(400).send({ message: "Crie pelo menos 1 jogo para iniciar!" })
     }
 
     await prisma.room.update({
@@ -393,4 +471,4 @@ async function finishGameRoom(request: FastifyRequest, reply: FastifyReply) {
     reply.status(200).send({message: "Jogo Finaliado com sucesso!"})
 }
 
-export { meRooms, openRooms, oneRoom, createRoom, joinRoom, startGameRoom, openGameRoom, finishGameRoom }
+export { meRooms, openRooms, oneRoom, createRoom, joinRoom, startGameRoom, openGameRoom, finishGameRoom, searchRooms }

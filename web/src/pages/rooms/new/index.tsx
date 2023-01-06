@@ -32,7 +32,7 @@ export default function NewRoom() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      const room = await newRoomService({title,urlImage,password,price});
+      const room = await newRoomService({title,urlImage,password,price:price*100});
       router.replace('/rooms/'+ room.id)
     } catch (error) {
       toast("Erro ao cadastrar sala!", { type: "error" })

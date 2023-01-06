@@ -9,23 +9,16 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 import { parseCookies } from "nookies";
+import { searchRoomService } from "../../services/rooms_services";
+import { Room } from "../../@types/room";
 
 export default function Home() {
-  const [mePools, setMePools] = useState([])
-  const [pools, setPools] = useState([])
+  const [pools, setPools] = useState<Room[]|undefined>()
 
   async function loadPools() {
-    axios.all([
-      await api.get('room/me'),
-      await api.get('room')
-    ]).then(axios.spread((data1, data2) => {
-      setMePools(data1.data['rooms'])
-      setPools(data2.data['rooms'])
-    })).catch(e=>{
-      toast("Erro ao carregar salas", {
-        type:'error'
-      })
-    })
+    const data = await searchRoomService(`take=10`)
+    console.log(data)
+    setPools(data)
   }
   
   useEffect(() => {
@@ -46,10 +39,7 @@ export default function Home() {
             <div className="w-48 py-4 ">
             </div>
           </div>
-
-          
-          <ListPools list={mePools} title='Meus Bolões' isMe={true} refresh={()=>{loadPools()}}/>
-          <ListPools list={pools} title='Bolões Publico' refresh={()=>{loadPools()}} />
+          <ListPools list={pools??[] as Room[]} title='Bolões Publico' refresh={()=>{loadPools()}} />
         </div>
       </div>
     </>
