@@ -1,12 +1,6 @@
-import axios from "axios";
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import ElevatedButton from "../../components/ElevatedButton";
 import { ListPools } from "../../components/ListPools";
-import { api } from "../../services/api";
-
-import { toast } from "react-toastify";
-import Link from "next/link";
 import { GetServerSideProps } from "next";
 import { parseCookies } from "nookies";
 import { searchRoomService } from "../../services/rooms_services";
@@ -33,9 +27,6 @@ export default function Home() {
       <div className="flex flex-col">
         <div className="p-3">
           <div className="flex flex-row-reverse gap-4">
-            <div className="w-48 py-4 ">
-            <Link href='/rooms/new'><ElevatedButton>Criar Bolão</ElevatedButton></Link>
-            </div>
             <div className="w-48 py-4 ">
             </div>
           </div>

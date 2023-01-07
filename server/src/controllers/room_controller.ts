@@ -99,7 +99,6 @@ async function meRooms(request: FastifyRequest, reply: FastifyReply) {
                 }
             },
         },
-        take: 10
     })
     return { room }
 }

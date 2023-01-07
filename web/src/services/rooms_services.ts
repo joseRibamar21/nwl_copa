@@ -28,6 +28,16 @@ export async function searchRoomService(filter: string) {
   }
 }
 
+export async function meRoomsServices() {
+  try {
+    const response = await api.get('room/me')
+    return (response.data['room'] as Room[])
+  } catch (error: any) {
+
+  }
+  return null
+}
+
 export async function roomSpecificService(id: string) {
   try {
     const response = await api.get('room/' + id)
