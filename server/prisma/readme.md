@@ -1,5 +1,0 @@
-### Campo Step(Room)
-0: Construção da sala (build)
-1: Jogo aberto para publico (Open)
-2: Jogo finalizado para entrada de resultados (run Game)
-3: Encerrar Sala e distribuir valores (finished)
