@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
-import { useRouter } from "next/router"
 import { useAuth } from "../hooks/useAuth"
 import Link from 'next/link'
 import ItemNavBar from "./ItemNavBar"
+import { useRouter } from "next/router"
 
 export default function NavBar() {
-  const { user } = useAuth()
-
+  const { user } = useAuth();
+  const router = useRouter();
 
   if (!user) {
     return (
@@ -23,9 +23,9 @@ export default function NavBar() {
     <div className="h-16 w-[100%]">
       <div className="flex flex-row h-16 bg-primary shadow-xl justify-between fixed w-[100%]">
         <div className="flex flex-row gap-10 px-5">
-          <ItemNavBar title="Principal" />
-          <ItemNavBar title="Notas" />
-          <ItemNavBar title="Provas" />
+          <ItemNavBar title="Principal" routerName="/home" currentRouterName={router.route}/>
+          <ItemNavBar title="Notas" routerName="/notas"  currentRouterName={router.route}/>
+          <ItemNavBar title="Provas" routerName="/provas" currentRouterName={router.route}/>
         </div>
         <div className="flex flex-row h-[100%] items-center justify-center pr-4">
           <span className="text-base text-white px-6">{user.name}</span>
